@@ -1,0 +1,50 @@
+{
+  "at": "2026-09-07T00:49:35.7615656+08:00",
+  "action": "unavailable",
+  "beforePid": 13648,
+  "unavailable": {
+    "error": {
+      "code": "BRIDGE_UNAVAILABLE",
+      "message": "管理组件没有在时限内返回有效数据，请检查是否安装并加载",
+      "requestId": "0HNOC6R78BDDM:00000002",
+      "retryable": false,
+      "details": {}
+    }
+  },
+  "after": {
+    "serverId": "local",
+    "name": "端到端验收服务器",
+    "lifecycle": "running",
+    "processId": 13648,
+    "version": null,
+    "galaxyName": "MachineAcceptance",
+    "uptimeSeconds": 16,
+    "onlinePlayers": null,
+    "maxPlayers": 4,
+    "rcon": {
+      "status": "connected",
+      "latencyMs": 0.454,
+      "unavailableReason": null
+    },
+    "steamQuery": {
+      "status": "unknown",
+      "latencyMs": null,
+      "unavailableReason": "STEAM_QUERY_PROTOCOL_NOT_IMPLEMENTED"
+    },
+    "lastSave": {
+      "at": "2026-09-07T00:49:40.7759383+08:00",
+      "source": "filesystem",
+      "unavailableReason": null
+    },
+    "agent": {
+      "connected": true,
+      "lastHeartbeatAt": "2026-09-07T00:49:40.7752415+08:00"
+    },
+    "provenance": {
+      "sampledAt": "2026-09-07T00:49:40.7752415+08:00",
+      "source": "managed-profile+rcon",
+      "freshness": "live",
+      "unavailableReason": null
+    }
+  }
+}

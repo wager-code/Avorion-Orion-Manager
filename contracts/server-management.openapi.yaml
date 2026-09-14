@@ -1,0 +1,1796 @@
+openapi: 3.1.0
+info:
+  title: Avorion Web 管理中心 - 服务器管理 API
+  version: 0.12.0
+  description: >-
+    服务器管理八个已确认页面的真实数据合同。任何不可取得的数据必须返回 null、unknown
+    或明确错误，不允许使用前端默认值冒充真实结果。
+servers:
+  - url: /api/v1
+security:
+  - sessionCookie: []
+tags:
+  - name: Security
+  - name: Servers
+  - name: Control
+  - name: Players
+  - name: Alliances
+  - name: GameManagement
+  - name: Performance
+  - name: Memory
+  - name: Updates
+  - name: FileSystem
+  - name: Tasks
+  - name: Backups
+  - name: Logs
+  - name: Diagnostics
+  - name: Operations
+paths:
+  /session/local:
+    post:
+      tags: [Security]
+      operationId: createLocalAdminSession
+      security: []
+      description: 仅允许从 Server Agent 本机建立短期管理员会话，设置 HttpOnly、SameSite=Strict Cookie。
+      responses:
+        "200":
+          description: 本机管理员会话与写操作防伪令牌
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AdminSessionStatus"}
+        default: {$ref: "#/components/responses/Error"}
+  /session:
+    get:
+      tags: [Security]
+      operationId: getAdminSession
+      security: []
+      responses:
+        "200":
+          description: 当前浏览器会话状态；响应禁止缓存
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AdminSessionStatus"}
+    delete:
+      tags: [Security]
+      operationId: revokeAdminSession
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}]
+      responses:
+        "204": {description: 会话已撤销}
+        default: {$ref: "#/components/responses/Error"}
+  /security/write-safety:
+    get:
+      tags: [Security]
+      operationId: getWriteSafetyStatus
+      security: []
+      responses:
+        "200":
+          description: 默认拒绝策略及固定命令允许清单的当前验证状态
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/WriteSafetyStatus"}
+  /servers:
+    get:
+      tags: [Servers]
+      operationId: listServers
+      responses:
+        "200":
+          description: 可访问的服务器列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: {$ref: "#/components/schemas/ServerSummary"}
+  /servers/{serverId}/status:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Servers]
+      operationId: getServerStatus
+      responses:
+        "200":
+          description: 真实服务器状态
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ServerStatus"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/actions/start:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Control]
+      operationId: startServer
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/events:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: limit
+        in: query
+        schema: {type: integer, minimum: 1, maximum: 100, default: 20}
+    get:
+      tags: [Control]
+      operationId: listServerEvents
+      responses:
+        "200":
+          description: 控制页最近真实事件
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, items: {$ref: "#/components/schemas/ServerEvent"}}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/actions/save:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Control]
+      operationId: saveWorld
+      x-implementation-gate: target-version-command-verification-required
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/management-bridge/players-known:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: offset
+        in: query
+        schema: {type: integer, minimum: 0, default: 0}
+      - name: limit
+        in: query
+        schema: {type: integer, minimum: 1, maximum: 50, default: 10}
+    get:
+      tags: [Players]
+      operationId: listKnownPlayerIdentities
+      description: 通过 OrionAdminBridge 读取 Galaxy 已知玩家的名称和索引；不返回在线状态、位置或资产。
+      responses:
+        "200":
+          description: 已知玩家最小身份分页
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/KnownPlayerQueryEnvelope"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/players/{playerIndex}/assets:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: playerIndex
+        in: path
+        required: true
+        schema: {type: integer, minimum: 1, maximum: 100000}
+    get:
+      tags: [Players]
+      operationId: getPlayerAssets
+      description: 通过 OrionAdminBridge 读取指定真实玩家的 Credits 与七种资源；不修改资产。
+      responses:
+        "200":
+          description: 玩家实时资产
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PlayerAssetsSnapshot"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/players/{playerIndex}/reward-grants:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: playerIndex
+        in: path
+        required: true
+        schema: {type: integer, minimum: 1, maximum: 100000}
+    post:
+      tags: [Players]
+      operationId: grantPlayerReward
+      x-risk: high
+      description: 通过固定 OrionAdminBridge 动作向单个玩家增加 Credits 或七种矿物；持久化幂等操作并返回精确变更前后资产。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/PlayerRewardRequest"}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/players/{playerIndex}/inventory:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: playerIndex
+        in: path
+        required: true
+        schema: {type: integer, minimum: 1, maximum: 100000}
+      - {$ref: "#/components/parameters/InventoryOffset"}
+      - {$ref: "#/components/parameters/InventoryLimit"}
+    get:
+      tags: [Players]
+      operationId: getPlayerInventory
+      description: 读取指定玩家的真实 Inventory 分页；不会修改物品。
+      responses:
+        "200":
+          description: 玩家实时库存
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/InventorySnapshot"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/players/{playerIndex}/system-upgrade-grants:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: playerIndex
+        in: path
+        required: true
+        schema: {type: integer, minimum: 1, maximum: 100000}
+    post:
+      tags: [Players]
+      operationId: grantPlayerSystemUpgrade
+      x-risk: high
+      description: 向指定玩家 Inventory 加入一个固定白名单原版系统插件；持久化操作并复核请求 Seed、游戏实际 Seed 与精确 +1 增量。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/SystemUpgradeGrantRequest"}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/reward-batches:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [GameManagement]
+      operationId: listRewardBatches
+      parameters:
+        - name: limit
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 30, default: 10}
+      responses:
+        "200":
+          description: 最近持久化奖励批次 Operation
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, items: {$ref: "#/components/schemas/Operation"}}
+        default: {$ref: "#/components/responses/Error"}
+    post:
+      tags: [GameManagement]
+      operationId: createRewardBatch
+      x-risk: high
+      description: 为 1–50 名玩家创建游戏内邮件或直接到账批次；父批次和逐目标操作均持久化，失败目标不自动重试。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/RewardBatchRequest"}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/alliances/{allianceIndex}/assets:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: allianceIndex
+        in: path
+        required: true
+        schema: {type: integer, minimum: 1, maximum: 100000}
+    get:
+      tags: [Alliances]
+      operationId: getAllianceAssets
+      description: 通过 OrionAdminBridge 读取指定真实联盟的 Credits 与七种资源；不修改资产。
+      responses:
+        "200":
+          description: 联盟实时资产
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AllianceAssetsSnapshot"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/alliances/{allianceIndex}/reward-grants:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: allianceIndex
+        in: path
+        required: true
+        schema: {type: integer, minimum: 1, maximum: 100000}
+    post:
+      tags: [Alliances]
+      operationId: grantAllianceReward
+      x-risk: high
+      description: 通过固定 OrionAdminBridge 动作向单个联盟增加 Credits 或七种矿物；持久化幂等操作并返回精确变更前后资产。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/AllianceRewardRequest"}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/alliances/{allianceIndex}/inventory:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: allianceIndex
+        in: path
+        required: true
+        schema: {type: integer, minimum: 1, maximum: 100000}
+      - {$ref: "#/components/parameters/InventoryOffset"}
+      - {$ref: "#/components/parameters/InventoryLimit"}
+    get:
+      tags: [Alliances]
+      operationId: getAllianceInventory
+      description: 读取指定联盟的真实 Inventory 分页；不会修改物品。
+      responses:
+        "200":
+          description: 联盟实时库存
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/InventorySnapshot"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/alliances/{allianceIndex}/system-upgrade-grants:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: allianceIndex
+        in: path
+        required: true
+        schema: {type: integer, minimum: 1, maximum: 100000}
+    post:
+      tags: [Alliances]
+      operationId: grantAllianceSystemUpgrade
+      x-risk: high
+      description: 向指定联盟 Inventory 加入一个固定白名单原版系统插件；持久化操作并复核请求 Seed、游戏实际 Seed 与精确 +1 增量。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/SystemUpgradeGrantRequest"}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/actions/shutdown:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Control]
+      operationId: shutdownServer
+      x-risk: high
+      x-implementation-gate: target-version-command-verification-required
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/actions/restart:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Control]
+      operationId: restartServer
+      x-risk: high
+      x-implementation-gate: target-version-command-verification-required
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/actions/force-stop:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Control]
+      operationId: forceStopServer
+      x-risk: critical
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirmation, reason]
+              properties:
+                confirmation: {type: string, const: FORCE_STOP}
+                reason: {type: string, minLength: 1, maxLength: 500}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/performance/current:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Performance]
+      operationId: getCurrentPerformance
+      responses:
+        "200":
+          description: 当前真实性能指标
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PerformanceSnapshot"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/performance/history:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: range
+        in: query
+        required: true
+        schema: {type: string, enum: [1h, 24h, 7d]}
+    get:
+      tags: [Performance]
+      operationId: getPerformanceHistory
+      responses:
+        "200":
+          description: SQLite 中的真实历史采样
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [range, points]
+                properties:
+                  range: {type: string, enum: [1h, 24h, 7d]}
+                  points:
+                    type: array
+                    items: {$ref: "#/components/schemas/PerformancePoint"}
+                  warningCode: {type: [string, "null"], enum: [INSUFFICIENT_HISTORY, null]}
+  /servers/{serverId}/memory:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Memory]
+      operationId: getMemoryOverview
+      responses:
+        "200":
+          description: 内存和星区摘要
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/MemoryOverview"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/sectors:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: filter
+        in: query
+        schema: {type: string, enum: [all, players, idle, eligible], default: all}
+      - name: sort
+        in: query
+        schema: {type: string, enum: [loaded, idle, memory], default: loaded}
+    get:
+      tags: [Memory]
+      operationId: listLoadedSectors
+      responses:
+        "200":
+          description: 当前无非侵入式可靠数据源；返回不可用状态，不植入自定义 MOD
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, provenance]
+                properties:
+                  items: {type: array, items: {$ref: "#/components/schemas/SectorRecord"}}
+                  provenance: {$ref: "#/components/schemas/Provenance"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/sectors/unload-attempts:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Memory]
+      operationId: tryUnloadSectors
+      x-verified-avorion-api: Galaxy.tryUnloadSector(x,y)
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sectors]
+              properties:
+                sectors:
+                  type: array
+                  minItems: 1
+                  maxItems: 50
+                  items: {$ref: "#/components/schemas/SectorCoordinate"}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/memory-policy:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Memory]
+      operationId: getMemoryPolicy
+      responses:
+        "200":
+          description: 当前持久化内存策略
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/MemoryPolicy"}
+        default: {$ref: "#/components/responses/Error"}
+    patch:
+      tags: [Memory]
+      operationId: updateMemoryPolicy
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/MemoryPolicyInput"}
+      responses:
+        "200":
+          description: 已保存
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/MemoryPolicy"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/updates/status:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Updates]
+      operationId: getUpdateStatus
+      responses:
+        "200":
+          description: SteamCMD 与版本状态
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UpdateStatus"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/filesystem/directories:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: path
+        in: query
+        required: false
+        description: 服务器上的绝对目录；省略时列出可用本地磁盘
+        schema: {type: string}
+    get:
+      tags: [FileSystem]
+      operationId: browseServerDirectories
+      description: 只读列出 Server Agent 所在服务器的磁盘或指定目录的直接子目录。
+      responses:
+        "200":
+          description: 真实服务器目录列表
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/FileSystemBrowseResult"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/update-environment:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Updates]
+      operationId: getUpdateEnvironment
+      responses:
+        "200":
+          description: 已保存路径及其当前真实验证结果
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UpdateEnvironmentCurrent"}
+        default: {$ref: "#/components/responses/Error"}
+    put:
+      tags: [Updates]
+      operationId: validateAndSaveUpdateEnvironment
+      description: 验证真实文件后，仅把通过验证的路径保存到本机管理数据库；不执行 SteamCMD。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/UpdateEnvironmentRequest"}
+      responses:
+        "200":
+          description: 验证通过并已保存
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UpdateEnvironmentValidation"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/server-setup/draft:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Updates]
+      operationId: getServerSetupDraft
+      description: 读取保存在本机管理数据库中的非敏感服务器配置草稿。响应永远不包含 RCON 密码。
+      responses:
+        "200":
+          description: 当前草稿；尚未保存时 draft 为 null
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ServerSetupDraftCurrent"}
+        default: {$ref: "#/components/responses/Error"}
+    put:
+      tags: [Updates]
+      operationId: saveServerSetupDraft
+      description: 只保存非敏感草稿，不写游戏配置、不启动服务器，也不修改防火墙或 MOD。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ServerSetupDraftInput"}
+      responses:
+        "200":
+          description: 已保存的非敏感草稿
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ServerSetupDraftConfiguration"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/server-setup/preflight:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Updates]
+      operationId: preflightServerSetup
+      description: >-
+        真实检查已保存更新环境、Galaxy 路径、字段及本机 TCP/UDP 端口占用。
+        RCON 密码只在本次请求内存中参与验证，不持久化、不记录且不回传。
+        本接口不写 server.ini、不启动服务器、不修改防火墙，也不安装 MOD。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ServerSetupPreflightInput"}
+      responses:
+        "200":
+          description: 真实预检结果；是否通过由 valid 字段表示
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ServerSetupPreflightResult"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/server-setup/applications:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Updates]
+      operationId: applyServerSetup
+      description: >-
+        在重新通过真实预检且精确 AvorionServer.exe 未运行后，创建 server.configure Operation。
+        始终原子写入不含秘密的受控启动档案；只有已有 Galaxy 的 server.ini 存在且结构无歧义时，
+        才原子更新已验证的 Networking.port/rconIp/rconPassword/rconPort 与
+        Administration.maxPlayers/name。新 Galaxy 不伪造 server.ini，RCON 延后到首次初始化后。
+        游戏监听地址、独立 Query 端口和防火墙均不在本接口中执行；自定义管理 MOD 不属于产品能力。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ServerSetupPreflightInput"}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/server-setup/initializations:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Updates]
+      operationId: initializeNewGalaxy
+      description: >-
+        仅用于启用 RCON 的全新 Galaxy。重新预检并核验受控启动档案后启动精确
+        AvorionServer.exe，等待服务端自行生成 server.ini，依次发送 /save 与 /stop
+        并确认安全退出。停服后原子写入 RCON，再重启并要求真实 RCON 认证成功。
+        RCON 密码只存在于本次请求/工作内存和 Avorion 必需的 server.ini；不得写入
+        草稿、Operation 证据、日志或响应。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/ServerSetupPreflightInput"}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/update-environment/detection:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Updates]
+      operationId: detectUpdateEnvironment
+      description: 只扫描已配置位置、常用安装目录和已知 Steam 库，不递归扫描整块磁盘。
+      responses:
+        "200":
+          description: 真实检测结果
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UpdateEnvironmentDetection"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/installations/steamcmd:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Updates]
+      operationId: installSteamCmd
+      description: >-
+        只安装 SteamCMD 引导程序。固定从 Valve 官方 HTTPS CDN 下载，验证 ZIP 边界、
+        SHA-256、Windows PE 与 Valve Authenticode 签名后原子落盘；不运行 steamcmd.exe，
+        不安装 Avorion 服务端，不覆盖已有目标目录。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/SteamCmdInstallRequest"}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/installations/avorion-server:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Updates]
+      operationId: installAvorionServer
+      description: >-
+        使用经过 Valve Authenticode 验证的本地 steamcmd.exe，以固定匿名登录、App 565060、
+        public 分支和 validate 参数安装 Avorion Dedicated Server。命令不经过 Shell；下载到
+        同父目录暂存位置，只有 SteamCMD 成功标记、bin/AvorionServer.exe 和
+        bin/ServerRunner.exe 同时验证通过后才原子落盘。不会启动服务端或修改防火墙。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/AvorionServerInstallRequest"}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/update-environment/validation:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Updates]
+      operationId: validateUpdateEnvironment
+      description: 只读验证路径，不保存配置，不执行更新。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/UpdateEnvironmentRequest"}
+      responses:
+        "200":
+          description: 真实验证结果，是否通过由 valid 字段表示
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UpdateEnvironmentValidation"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/updates/checks:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Updates]
+      operationId: checkForServerUpdate
+      description: 验证 SteamCMD Valve 签名后，以固定匿名参数查询 App 565060 public Build ID；不会调用 app_update 或修改服务端文件。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/updates/verifications:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Updates]
+      operationId: verifyServerFiles
+      description: 只读检查 AvorionServer.exe 与 ServerRunner.exe 的 PE 文件头、大小和 SHA-256；不会下载、修复或覆盖文件。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/updates:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Updates]
+      operationId: updateServer
+      x-risk: high
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/tasks:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Tasks]
+      operationId: listTasks
+      responses:
+        "200":
+          description: 持久化任务列表
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, items: {$ref: "#/components/schemas/AutomationTask"}}
+    post:
+      tags: [Tasks]
+      operationId: createTask
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/AutomationTaskInput"}
+      responses:
+        "201":
+          description: 已创建
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AutomationTask"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/tasks/{taskId}:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: taskId
+        in: path
+        required: true
+        schema: {type: string}
+    patch:
+      tags: [Tasks]
+      operationId: updateTask
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: "#/components/schemas/AutomationTaskInput"}
+      responses:
+        "200":
+          description: 已更新
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AutomationTask"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/backups:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: cursor
+        in: query
+        schema: {type: string}
+      - name: limit
+        in: query
+        schema: {type: integer, minimum: 1, maximum: 100, default: 50}
+    get:
+      tags: [Backups]
+      operationId: listBackups
+      responses:
+        "200":
+          description: 从白名单目录扫描到的真实备份文件
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, items: {$ref: "#/components/schemas/BackupRecord"}}
+                  nextCursor: {type: [string, "null"]}
+        default: {$ref: "#/components/responses/Error"}
+    post:
+      tags: [Backups]
+      operationId: createBackup
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/backups/refresh:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Backups]
+      operationId: refreshBackups
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/backups/{backupId}/restore:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: backupId
+        in: path
+        required: true
+        schema: {type: string}
+    post:
+      tags: [Backups]
+      operationId: restoreBackup
+      x-risk: critical
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirmation]
+              properties:
+                confirmation: {type: string, const: RESTORE_BACKUP}
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/logs:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: cursor
+        in: query
+        schema: {type: string}
+      - name: limit
+        in: query
+        schema: {type: integer, minimum: 1, maximum: 500, default: 200}
+      - name: category
+        in: query
+        schema: {$ref: "#/components/schemas/LogCategory"}
+      - name: query
+        in: query
+        schema: {type: string, maxLength: 200}
+    get:
+      tags: [Logs]
+      operationId: listLogs
+      responses:
+        "200":
+          description: 真实日志记录
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, items: {$ref: "#/components/schemas/LogEntry"}}
+                  nextCursor: {type: [string, "null"]}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/logs/stream:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Logs]
+      operationId: streamLogs
+      parameters:
+        - name: Last-Event-ID
+          in: header
+          schema: {type: string}
+      responses:
+        "200":
+          description: SSE 日志流
+          content:
+            text/event-stream:
+              schema: {type: string}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/diagnostics/runs:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Diagnostics]
+      operationId: runDiagnostics
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/diagnostics/runs/{runId}:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: runId
+        in: path
+        required: true
+        schema: {type: string}
+    get:
+      tags: [Diagnostics]
+      operationId: getDiagnosticRun
+      responses:
+        "200":
+          description: 诊断结果
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/DiagnosticRun"}
+        default: {$ref: "#/components/responses/Error"}
+  /operations/{operationId}:
+    parameters:
+      - name: operationId
+        in: path
+        required: true
+        schema: {type: string}
+    get:
+      tags: [Operations]
+      operationId: getOperation
+      responses:
+        "200":
+          description: 长操作状态
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/Operation"}
+        default: {$ref: "#/components/responses/Error"}
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: avorion_admin_session
+  parameters:
+    ServerId:
+      name: serverId
+      in: path
+      required: true
+      schema: {type: string, minLength: 1, maxLength: 80}
+    CsrfToken:
+      name: X-CSRF-Token
+      in: header
+      required: true
+      schema: {type: string}
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: {type: string, minLength: 8, maxLength: 128}
+    InventoryOffset:
+      name: offset
+      in: query
+      schema: {type: integer, minimum: 0, maximum: 100000, default: 0}
+    InventoryLimit:
+      name: limit
+      in: query
+      schema: {type: integer, minimum: 1, maximum: 50, default: 50}
+  responses:
+    Error:
+      description: 统一错误
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/ErrorEnvelope"}
+    OperationAccepted:
+      description: 已接受长操作
+      content:
+        application/json:
+          schema: {$ref: "#/components/schemas/OperationAccepted"}
+  schemas:
+    AdminSessionStatus:
+      type: object
+      required: [authenticated, mode]
+      properties:
+        authenticated: {type: boolean}
+        mode: {type: string, const: local-loopback}
+        csrfToken: {type: [string, "null"]}
+        expiresAt: {type: [string, "null"], format: date-time}
+    CommandSafetyStatus:
+      type: object
+      required: [command, verified, reason]
+      properties:
+        command: {type: string}
+        verified: {type: boolean}
+        reason: {type: string}
+    WriteSafetyStatus:
+      type: object
+      required: [defaultPolicy, localSessionRequired, csrfRequired, idempotencyRequired, commands]
+      properties:
+        defaultPolicy: {type: string, const: deny-by-default}
+        localSessionRequired: {type: boolean}
+        csrfRequired: {type: boolean}
+        idempotencyRequired: {type: boolean}
+        commands:
+          type: array
+          items: {$ref: "#/components/schemas/CommandSafetyStatus"}
+    Provenance:
+      type: object
+      required: [sampledAt, source, freshness]
+      properties:
+        sampledAt: {type: string, format: date-time}
+        source:
+          type: string
+          enum: [windows, filesystem, steamcmd, steam-query, rcon, database]
+        freshness: {type: string, enum: [live, recent, stale, unavailable]}
+        unavailableReason: {type: [string, "null"]}
+    ServerSummary:
+      type: object
+      required: [serverId, name, lifecycle, agentConnected]
+      properties:
+        serverId: {type: string}
+        name: {type: string}
+        lifecycle: {$ref: "#/components/schemas/Lifecycle"}
+        agentConnected: {type: boolean}
+    Lifecycle:
+      type: string
+      enum: [running, stopped, starting, stopping, restarting, unknown]
+    ConnectionStatus:
+      type: string
+      enum: [connected, disconnected, degraded, unknown]
+    ServerStatus:
+      type: object
+      required: [serverId, name, lifecycle, agent, provenance]
+      properties:
+        serverId: {type: string}
+        name: {type: string}
+        lifecycle: {$ref: "#/components/schemas/Lifecycle"}
+        processId: {type: [integer, "null"]}
+        version: {type: [string, "null"]}
+        galaxyName: {type: [string, "null"]}
+        uptimeSeconds: {type: [integer, "null"], minimum: 0}
+        onlinePlayers: {type: [integer, "null"], minimum: 0}
+        maxPlayers: {type: [integer, "null"], minimum: 0}
+        rcon:
+          type: object
+          required: [status]
+          properties:
+            status: {$ref: "#/components/schemas/ConnectionStatus"}
+        steamQuery:
+          type: object
+          required: [status]
+          properties:
+            status: {$ref: "#/components/schemas/ConnectionStatus"}
+            latencyMs: {type: [number, "null"], minimum: 0}
+        lastSave:
+          type: object
+          properties:
+            at: {type: [string, "null"], format: date-time}
+            source: {type: [string, "null"], enum: [filesystem, rcon, null]}
+        agent:
+          type: object
+          required: [connected]
+          properties:
+            connected: {type: boolean}
+            lastHeartbeatAt: {type: [string, "null"], format: date-time}
+        provenance: {$ref: "#/components/schemas/Provenance"}
+    ServerEvent:
+      type: object
+      required: [eventId, occurredAt, kind, message, source]
+      properties:
+        eventId: {type: string}
+        occurredAt: {type: string, format: date-time}
+        kind: {type: string, enum: [player, save, rcon, warning, operation, other]}
+        message: {type: string}
+        source: {type: string, enum: [filesystem, rcon, database]}
+    PlayerResourceBalances:
+      type: object
+      required: [iron, titanium, naonite, trinium, xanion, ogonite, avorion]
+      properties:
+        iron: {type: integer, minimum: 0, maximum: 9007199254740991}
+        titanium: {type: integer, minimum: 0, maximum: 9007199254740991}
+        naonite: {type: integer, minimum: 0, maximum: 9007199254740991}
+        trinium: {type: integer, minimum: 0, maximum: 9007199254740991}
+        xanion: {type: integer, minimum: 0, maximum: 9007199254740991}
+        ogonite: {type: integer, minimum: 0, maximum: 9007199254740991}
+        avorion: {type: integer, minimum: 0, maximum: 9007199254740991}
+    KnownPlayerIdentity:
+      type: object
+      required: [index, name]
+      properties:
+        index: {type: integer, minimum: 1, maximum: 100000}
+        name: {type: string, minLength: 1, maxLength: 512}
+    KnownPlayerQueryData:
+      type: object
+      required: [action, source, readOnly, total, offset, limit, items]
+      properties:
+        action: {type: string, const: players-known}
+        source: {type: string, const: avorion-lua-api}
+        readOnly: {type: boolean, const: true}
+        total: {type: integer, minimum: 0}
+        offset: {type: integer, minimum: 0}
+        limit: {type: integer, minimum: 1, maximum: 50}
+        items: {type: array, items: {$ref: "#/components/schemas/KnownPlayerIdentity"}}
+    KnownPlayerQueryEnvelope:
+      type: object
+      required: [sampledAt, freshness, data]
+      properties:
+        sampledAt: {type: string, format: date-time}
+        freshness: {type: string, const: live}
+        data: {$ref: "#/components/schemas/KnownPlayerQueryData"}
+    PlayerAssetsSnapshot:
+      type: object
+      required: [playerIndex, playerName, online, credits, resources, sampledAt, freshness, source, componentVersion]
+      properties:
+        playerIndex: {type: integer, minimum: 1, maximum: 100000}
+        playerName: {type: string, minLength: 1, maxLength: 512}
+        online: {type: boolean}
+        credits: {type: integer, minimum: 0, maximum: 9007199254740991}
+        resources: {$ref: "#/components/schemas/PlayerResourceBalances"}
+        sampledAt: {type: string, format: date-time}
+        freshness: {type: string, const: live}
+        source: {type: string, const: avorion-lua-api}
+        componentVersion: {type: string, enum: [0.5.0, 0.6.0, 0.7.0, 0.8.0, 0.9.0]}
+    InventoryItemSummary:
+      type: object
+      required: [slot, amount, itemType, name, rarity, script, seed]
+      properties:
+        slot: {type: integer, format: int64, minimum: 0, maximum: 4294967295}
+        amount: {type: integer, minimum: 1, maximum: 100000000}
+        itemType: {type: string, enum: [turret, turret-template, system-upgrade, vanilla-item, usable-item, unknown]}
+        name: {type: string, minLength: 1, maxLength: 512}
+        rarity: {type: [integer, "null"], minimum: -1, maximum: 5}
+        script: {type: [string, "null"], minLength: 1, maxLength: 512}
+        seed: {type: [string, "null"], minLength: 1, maxLength: 128}
+    InventorySnapshot:
+      type: object
+      required: [ownerKind, ownerIndex, ownerName, online, total, occupiedSlots, maxSlots, offset, limit, items, sampledAt, freshness, source, componentVersion]
+      properties:
+        ownerKind: {type: string, enum: [player, alliance]}
+        ownerIndex: {type: integer, minimum: 1, maximum: 100000}
+        ownerName: {type: string, minLength: 1, maxLength: 512}
+        online: {type: boolean}
+        total: {type: integer, minimum: 0}
+        occupiedSlots: {type: integer, minimum: 0}
+        maxSlots: {type: integer, minimum: 0}
+        offset: {type: integer, minimum: 0, maximum: 100000}
+        limit: {type: integer, minimum: 1, maximum: 50}
+        items: {type: array, maxItems: 50, items: {$ref: "#/components/schemas/InventoryItemSummary"}}
+        sampledAt: {type: string, format: date-time}
+        freshness: {type: string, const: live}
+        source: {type: string, const: avorion-lua-api}
+        componentVersion: {type: string, const: 0.9.0}
+    SystemUpgradeGrantRequest:
+      type: object
+      required: [upgradeKey, rarity, confirmation]
+      properties:
+        upgradeKey:
+          type: string
+          enum: [battery-booster, cargo-extension, energy-booster, engine-booster, hyperspace-booster, radar-booster, scanner-booster, shield-booster, mining-system, trading-system, valuables-detector]
+        rarity: {type: string, enum: [common, uncommon, rare, exceptional, exotic, legendary]}
+        confirmation:
+          type: string
+          minLength: 21
+          maxLength: 64
+          description: 必须精确等于 GRANT PLAYER SYSTEM {index} 或 GRANT ALLIANCE SYSTEM {index}。
+    PlayerRewardResources:
+      type: object
+      required: [iron, titanium, naonite, trinium, xanion, ogonite, avorion]
+      properties:
+        iron: {type: integer, minimum: 0, maximum: 100000000}
+        titanium: {type: integer, minimum: 0, maximum: 100000000}
+        naonite: {type: integer, minimum: 0, maximum: 100000000}
+        trinium: {type: integer, minimum: 0, maximum: 100000000}
+        xanion: {type: integer, minimum: 0, maximum: 100000000}
+        ogonite: {type: integer, minimum: 0, maximum: 100000000}
+        avorion: {type: integer, minimum: 0, maximum: 100000000}
+    PlayerRewardGrant:
+      type: object
+      required: [credits, resources]
+      properties:
+        credits: {type: integer, minimum: 0, maximum: 1000000000}
+        resources: {$ref: "#/components/schemas/PlayerRewardResources"}
+    PlayerRewardRequest:
+      type: object
+      required: [grant, confirmation]
+      properties:
+        grant: {$ref: "#/components/schemas/PlayerRewardGrant"}
+        confirmation: {type: string, minLength: 14, maxLength: 64, pattern: "^GRANT PLAYER [1-9][0-9]{0,5}$"}
+    RewardMailMessage:
+      type: object
+      required: [subject, body]
+      properties:
+        subject: {type: string, minLength: 1, maxLength: 80}
+        body: {type: string, minLength: 1, maxLength: 500}
+    RewardBatchRequest:
+      type: object
+      required: [delivery, playerIndexes, grant, confirmation]
+      properties:
+        delivery: {type: string, enum: [mail, direct]}
+        playerIndexes:
+          type: array
+          minItems: 1
+          maxItems: 50
+          uniqueItems: true
+          items: {type: integer, minimum: 1, maximum: 100000}
+        grant: {$ref: "#/components/schemas/PlayerRewardGrant"}
+        mail:
+          description: delivery=mail 时必填；delivery=direct 时必须省略。
+          oneOf: [{$ref: "#/components/schemas/RewardMailMessage"}, {type: "null"}]
+        confirmation: {type: string, minLength: 21, maxLength: 64, pattern: "^CREATE PLAYER BATCH [1-9][0-9]?$"}
+    PlayerRewardResult:
+      type: object
+      required: [playerIndex, playerName, online, grant, before, after, outcome, verifiedAt, source, componentVersion]
+      properties:
+        playerIndex: {type: integer, minimum: 1, maximum: 100000}
+        playerName: {type: string, minLength: 1, maxLength: 512}
+        online: {type: boolean}
+        grant: {$ref: "#/components/schemas/PlayerRewardGrant"}
+        before: {$ref: "#/components/schemas/PlayerAssetsSnapshot"}
+        after: {$ref: "#/components/schemas/PlayerAssetsSnapshot"}
+        outcome: {type: string, const: granted-and-verified}
+        verifiedAt: {type: string, format: date-time}
+        source: {type: string, const: avorion-lua-api}
+        componentVersion: {type: string, enum: [0.6.0, 0.7.0, 0.8.0, 0.9.0]}
+    AllianceResourceBalances:
+      type: object
+      required: [iron, titanium, naonite, trinium, xanion, ogonite, avorion]
+      properties:
+        iron: {type: integer, minimum: 0, maximum: 9007199254740991}
+        titanium: {type: integer, minimum: 0, maximum: 9007199254740991}
+        naonite: {type: integer, minimum: 0, maximum: 9007199254740991}
+        trinium: {type: integer, minimum: 0, maximum: 9007199254740991}
+        xanion: {type: integer, minimum: 0, maximum: 9007199254740991}
+        ogonite: {type: integer, minimum: 0, maximum: 9007199254740991}
+        avorion: {type: integer, minimum: 0, maximum: 9007199254740991}
+    AllianceAssetsSnapshot:
+      type: object
+      required: [allianceIndex, allianceName, online, credits, resources, sampledAt, freshness, source, componentVersion]
+      properties:
+        allianceIndex: {type: integer, minimum: 1, maximum: 100000}
+        allianceName: {type: string, minLength: 1, maxLength: 512}
+        online: {type: boolean}
+        credits: {type: integer, minimum: 0, maximum: 9007199254740991}
+        resources: {$ref: "#/components/schemas/AllianceResourceBalances"}
+        sampledAt: {type: string, format: date-time}
+        freshness: {type: string, const: live}
+        source: {type: string, const: avorion-lua-api}
+        componentVersion: {type: string, enum: [0.7.0, 0.8.0, 0.9.0]}
+    AllianceRewardResources:
+      type: object
+      required: [iron, titanium, naonite, trinium, xanion, ogonite, avorion]
+      properties:
+        iron: {type: integer, minimum: 0, maximum: 100000000}
+        titanium: {type: integer, minimum: 0, maximum: 100000000}
+        naonite: {type: integer, minimum: 0, maximum: 100000000}
+        trinium: {type: integer, minimum: 0, maximum: 100000000}
+        xanion: {type: integer, minimum: 0, maximum: 100000000}
+        ogonite: {type: integer, minimum: 0, maximum: 100000000}
+        avorion: {type: integer, minimum: 0, maximum: 100000000}
+    AllianceRewardGrant:
+      type: object
+      required: [credits, resources]
+      properties:
+        credits: {type: integer, minimum: 0, maximum: 1000000000}
+        resources: {$ref: "#/components/schemas/AllianceRewardResources"}
+    AllianceRewardRequest:
+      type: object
+      required: [grant, confirmation]
+      properties:
+        grant: {$ref: "#/components/schemas/AllianceRewardGrant"}
+        confirmation: {type: string, minLength: 16, maxLength: 64, pattern: "^GRANT ALLIANCE [1-9][0-9]{0,5}$"}
+    AllianceRewardResult:
+      type: object
+      required: [allianceIndex, allianceName, online, grant, before, after, outcome, verifiedAt, source, componentVersion]
+      properties:
+        allianceIndex: {type: integer, minimum: 1, maximum: 100000}
+        allianceName: {type: string, minLength: 1, maxLength: 512}
+        online: {type: boolean}
+        grant: {$ref: "#/components/schemas/AllianceRewardGrant"}
+        before: {$ref: "#/components/schemas/AllianceAssetsSnapshot"}
+        after: {$ref: "#/components/schemas/AllianceAssetsSnapshot"}
+        outcome: {type: string, const: granted-and-verified}
+        verifiedAt: {type: string, format: date-time}
+        source: {type: string, const: avorion-lua-api}
+        componentVersion: {type: string, enum: [0.7.0, 0.8.0, 0.9.0]}
+    PerformanceSnapshot:
+      type: object
+      required: [cpu, memory, disk, network, provenance]
+      properties:
+        cpu:
+          type: object
+          properties:
+            processPercent: {type: [number, "null"], minimum: 0}
+            hostPercent: {type: [number, "null"], minimum: 0, maximum: 100}
+        memory:
+          type: object
+          properties:
+            workingSetBytes: {type: [integer, "null"], minimum: 0}
+            privateBytes: {type: [integer, "null"], minimum: 0}
+            hostTotalBytes: {type: [integer, "null"], minimum: 0}
+        disk:
+          type: object
+          properties:
+            totalBytes: {type: [integer, "null"], minimum: 0}
+            usedBytes: {type: [integer, "null"], minimum: 0}
+            availableBytes: {type: [integer, "null"], minimum: 0}
+        network:
+          type: object
+          required: [scope]
+          properties:
+            scope: {type: string, enum: [host, process, unavailable]}
+            downloadBytesPerSecond: {type: [number, "null"], minimum: 0}
+            uploadBytesPerSecond: {type: [number, "null"], minimum: 0}
+        onlinePlayers: {type: [integer, "null"], minimum: 0}
+        uptimeSeconds: {type: [integer, "null"], minimum: 0}
+        provenance: {$ref: "#/components/schemas/Provenance"}
+    PerformancePoint:
+      type: object
+      required: [at]
+      properties:
+        at: {type: string, format: date-time}
+        cpuProcessPercent: {type: [number, "null"]}
+        memoryWorkingSetBytes: {type: [integer, "null"]}
+        networkDownloadBytesPerSecond: {type: [number, "null"]}
+        networkUploadBytesPerSecond: {type: [number, "null"]}
+        onlinePlayers: {type: [integer, "null"]}
+    MemoryOverview:
+      type: object
+      required: [alertLevel, provenance]
+      properties:
+        currentWorkingSetBytes: {type: [integer, "null"]}
+        startupBaselineBytes: {type: [integer, "null"]}
+        growthBytes: {type: [integer, "null"]}
+        growthBytesPerHour: {type: [number, "null"]}
+        warningThresholdBytes: {type: [integer, "null"]}
+        alertLevel: {type: string, enum: [normal, warning, critical, unknown]}
+        loadedSectorCount: {type: [integer, "null"]}
+        playerSectorCount: {type: [integer, "null"]}
+        idleSectorCount: {type: [integer, "null"]}
+        provenance: {$ref: "#/components/schemas/Provenance"}
+    MemoryPolicyMode:
+      type: string
+      enum: [notify, try-unload-idle-sectors, safe-restart-at-critical]
+    MemoryPolicyInput:
+      type: object
+      required: [mode, warningThresholdBytes, criticalThresholdBytes]
+      properties:
+        mode: {$ref: "#/components/schemas/MemoryPolicyMode"}
+        warningThresholdBytes: {type: integer, minimum: 1}
+        criticalThresholdBytes: {type: integer, minimum: 1}
+        criticalRestartEnabled: {type: boolean, default: false}
+    MemoryPolicy:
+      allOf:
+        - {$ref: "#/components/schemas/MemoryPolicyInput"}
+        - type: object
+          required: [updatedAt]
+          properties:
+            updatedAt: {type: string, format: date-time}
+    SectorCoordinate:
+      type: object
+      required: [x, y]
+      properties:
+        x: {type: integer}
+        y: {type: integer}
+    SectorRecord:
+      allOf:
+        - {$ref: "#/components/schemas/SectorCoordinate"}
+        - type: object
+          required: [playerCount, eligibleForUnload]
+          properties:
+            name: {type: [string, "null"]}
+            playerCount: {type: integer, minimum: 0}
+            idleSeconds: {type: [integer, "null"], minimum: 0}
+            estimatedMemoryBytes: {type: [integer, "null"], minimum: 0}
+            eligibleForUnload: {type: boolean}
+            ineligibleReason: {type: [string, "null"]}
+    UpdateStatus:
+      type: object
+      required: [steamCmdAvailable, provenance]
+      properties:
+        steamCmdAvailable: {type: boolean}
+        steamCmdPathConfigured: {type: boolean}
+        currentVersion: {type: [string, "null"]}
+        latestKnownVersion: {type: [string, "null"]}
+        updateAvailable: {type: [boolean, "null"]}
+        lastCheckedAt: {type: [string, "null"], format: date-time}
+        provenance: {$ref: "#/components/schemas/Provenance"}
+    FileSystemDirectoryEntry:
+      type: object
+      required: [name, path, isDrive]
+      properties:
+        name: {type: string}
+        path: {type: string}
+        isDrive: {type: boolean}
+        availableBytes: {type: [integer, "null"], minimum: 0}
+        totalBytes: {type: [integer, "null"], minimum: 0}
+    FileSystemBrowseResult:
+      type: object
+      required: [isRootView, items]
+      properties:
+        currentPath: {type: [string, "null"]}
+        parentPath: {type: [string, "null"]}
+        isRootView: {type: boolean}
+        items:
+          type: array
+          items: {$ref: "#/components/schemas/FileSystemDirectoryEntry"}
+    ServerSetupDraftInput:
+      type: object
+      required: [serverName, galaxyName, galaxyMode, maxPlayers, galaxyDirectory, listenAddress, gamePort, queryPort, rconEnabled, rconPort, allowFirewallChange]
+      properties:
+        serverName: {type: string, minLength: 1, maxLength: 80}
+        galaxyName: {type: string, minLength: 1, maxLength: 120}
+        galaxyMode: {type: string, enum: [new, existing]}
+        maxPlayers: {type: integer, minimum: 1, maximum: 100}
+        galaxyDirectory: {type: string, minLength: 1, maxLength: 2048}
+        listenAddress: {type: string, minLength: 1, maxLength: 128}
+        gamePort: {type: integer, minimum: 1, maximum: 65535}
+        queryPort: {type: integer, minimum: 1, maximum: 65535}
+        rconEnabled: {type: boolean}
+        rconPort: {type: integer, minimum: 1, maximum: 65535}
+        allowFirewallChange: {type: boolean}
+        installManagementMod:
+          type: boolean
+          enum: [false]
+          default: false
+          deprecated: true
+          description: 仅为旧客户端兼容保留；服务端始终按 false 处理，不安装或植入自定义 MOD。
+    ServerSetupDraftConfiguration:
+      allOf:
+        - {$ref: "#/components/schemas/ServerSetupDraftInput"}
+        - type: object
+          required: [updatedAt]
+          properties:
+            updatedAt: {type: string, format: date-time}
+    ServerSetupDraftCurrent:
+      type: object
+      required: [draft]
+      properties:
+        draft:
+          oneOf:
+            - {$ref: "#/components/schemas/ServerSetupDraftConfiguration"}
+            - {type: "null"}
+    ServerSetupPreflightInput:
+      allOf:
+        - {$ref: "#/components/schemas/ServerSetupDraftInput"}
+        - type: object
+          properties:
+            rconPassword:
+              type: [string, "null"]
+              minLength: 8
+              maxLength: 128
+              writeOnly: true
+              description: 仅用于当前预检请求；不持久化、不记录且不回传。
+    ServerSetupValidationIssue:
+      type: object
+      required: [field, code, message, severity]
+      properties:
+        field: {type: string}
+        code: {type: string}
+        message: {type: string}
+        severity: {type: string, enum: [error, warning]}
+    PortAvailability:
+      type: object
+      required: [purpose, port, protocol, available, evidence]
+      properties:
+        purpose: {type: string}
+        port: {type: integer, minimum: 1, maximum: 65535}
+        protocol: {type: string, enum: [tcp, udp]}
+        available: {type: boolean}
+        evidence: {type: string}
+    ServerSetupPreflightResult:
+      type: object
+      required: [valid, updateEnvironmentValid, galaxyPathValid, rconPasswordAccepted, ports, issues, checkedAt]
+      properties:
+        valid: {type: boolean}
+        updateEnvironmentValid: {type: boolean}
+        galaxyPathValid: {type: boolean}
+        rconPasswordAccepted: {type: boolean}
+        ports:
+          type: array
+          items: {$ref: "#/components/schemas/PortAvailability"}
+        issues:
+          type: array
+          items: {$ref: "#/components/schemas/ServerSetupValidationIssue"}
+        checkedAt: {type: string, format: date-time}
+    ServerSetupApplicationResult:
+      type: object
+      required: [mode, galaxyDirectory, launchProfilePath, serverIniUpdated, rconConfigured, configurationSha256, deferredActions, appliedAt]
+      properties:
+        mode: {type: string, enum: [launch-profile-ready, server-ini-updated]}
+        galaxyDirectory: {type: string}
+        launchProfilePath: {type: string}
+        serverIniPath: {type: [string, "null"]}
+        serverIniUpdated: {type: boolean}
+        rconConfigured: {type: boolean}
+        configurationSha256: {type: string, pattern: "^[A-F0-9]{64}$"}
+        deferredActions:
+          type: array
+          items:
+            type: string
+            enum: [game-listen-address, steam-query-port, first-galaxy-initialization, rcon-until-first-initialization, windows-firewall]
+        appliedAt: {type: string, format: date-time}
+    ServerInitializationResult:
+      type: object
+      required: [mode, processId, galaxyDirectory, serverIniPath, consoleSaveConfirmed, consoleStopConfirmed, rconConfigured, rconAuthenticated, healthEvidence, deferredActions, startedAt, completedAt]
+      properties:
+        mode: {type: string, const: new-galaxy-running}
+        processId: {type: integer, minimum: 1}
+        galaxyDirectory: {type: string}
+        serverIniPath: {type: string}
+        consoleSaveConfirmed: {type: boolean, const: true}
+        consoleStopConfirmed: {type: boolean, const: true}
+        rconConfigured: {type: boolean, const: true}
+        rconAuthenticated: {type: boolean, const: true}
+        healthEvidence:
+          type: array
+          items:
+            type: string
+            enum: [process-running, server-ini-created, console-save-sent, console-stop-confirmed, rcon-authenticated]
+        deferredActions:
+          type: array
+          items:
+            type: string
+            enum: [game-listen-address, steam-query-port, windows-firewall]
+        startedAt: {type: string, format: date-time}
+        completedAt: {type: string, format: date-time}
+    SteamCmdInstallRequest:
+      type: object
+      required: [installDirectory]
+      properties:
+        installDirectory:
+          type: string
+          description: 不存在的 Windows 本地目标目录；父目录必须已经存在且可写。
+    SteamCmdInstallationResult:
+      type: object
+      required: [installDirectory, executablePath, sourceUrl, archiveSha256, archiveBytes, executableBytes, signer, installedAt]
+      properties:
+        installDirectory: {type: string}
+        executablePath: {type: string}
+        sourceUrl: {type: string, format: uri, const: "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"}
+        archiveSha256: {type: string, pattern: "^[A-F0-9]{64}$"}
+        archiveBytes: {type: integer, format: int64}
+        executableBytes: {type: integer, format: int64}
+        signer: {type: string, enum: [Valve, "Valve Corp."]}
+        installedAt: {type: string, format: date-time}
+    AvorionServerInstallRequest:
+      type: object
+      required: [steamCmdPath, installDirectory]
+      properties:
+        steamCmdPath:
+          type: string
+          description: 本机已存在、签名主体为 Valve 或 Valve Corp. 的 steamcmd.exe 绝对路径。
+        installDirectory:
+          type: string
+          description: 不存在的 Windows 本地服务端目标目录；不得与 SteamCMD 目录相同或互相包含。
+    AvorionServerInstallationResult:
+      type: object
+      required: [installDirectory, executablePath, runnerPath, appId, branch, steamCmdSigner, executableBytes, installedAt]
+      properties:
+        installDirectory: {type: string}
+        executablePath: {type: string}
+        runnerPath: {type: string}
+        appId: {type: integer, const: 565060}
+        branch: {type: string, const: public}
+        steamCmdSigner: {type: string, enum: [Valve, "Valve Corp."]}
+        executableBytes: {type: integer, format: int64, minimum: 65536}
+        installedAt: {type: string, format: date-time}
+    UpdateEnvironmentRequest:
+      type: object
+      required: [steamCmdPath, serverDirectory]
+      properties:
+        steamCmdPath: {type: string}
+        serverDirectory: {type: string}
+    UpdateComponentValidation:
+      type: object
+      required: [requestedPath, exists, readable, checks, issues]
+      properties:
+        requestedPath: {type: string}
+        resolvedExecutablePath: {type: [string, "null"]}
+        exists: {type: boolean}
+        readable: {type: boolean}
+        version: {type: [string, "null"]}
+        checks: {type: array, items: {type: string}}
+        issues: {type: array, items: {type: string}}
+    UpdateEnvironmentValidation:
+      type: object
+      required: [valid, steamCmd, server, validatedAt]
+      properties:
+        valid: {type: boolean}
+        steamCmd: {$ref: "#/components/schemas/UpdateComponentValidation"}
+        server: {$ref: "#/components/schemas/UpdateComponentValidation"}
+        serverDriveAvailableBytes: {type: [integer, "null"], minimum: 0}
+        validatedAt: {type: string, format: date-time}
+    UpdateEnvironmentDetection:
+      type: object
+      required: [status, scannedAt]
+      properties:
+        status: {type: string, enum: [complete, partial, not-found]}
+        steamCmd: {oneOf: [{$ref: "#/components/schemas/UpdateComponentValidation"}, {type: "null"}]}
+        server: {oneOf: [{$ref: "#/components/schemas/UpdateComponentValidation"}, {type: "null"}]}
+        scannedAt: {type: string, format: date-time}
+    UpdateEnvironmentConfiguration:
+      type: object
+      required: [steamCmdPath, serverDirectory, validatedAt]
+      properties:
+        steamCmdPath: {type: string}
+        serverDirectory: {type: string}
+        validatedAt: {type: string, format: date-time}
+    UpdateEnvironmentCurrent:
+      type: object
+      required: [configured]
+      properties:
+        configured: {type: boolean}
+        configuration: {oneOf: [{$ref: "#/components/schemas/UpdateEnvironmentConfiguration"}, {type: "null"}]}
+        validation: {oneOf: [{$ref: "#/components/schemas/UpdateEnvironmentValidation"}, {type: "null"}]}
+    UpdateCheckResult:
+      type: object
+      required: [appId, branch, steamCmdPath, serverDirectory, latestBuildId, evidence, checkedAt]
+      properties:
+        appId: {type: integer, const: 565060}
+        branch: {type: string, const: public}
+        steamCmdPath: {type: string}
+        serverDirectory: {type: string}
+        currentVersion: {type: [string, "null"]}
+        currentBuildId: {type: [string, "null"]}
+        latestBuildId: {type: string, pattern: "^[0-9]+$"}
+        updateAvailable: {type: [boolean, "null"]}
+        evidence: {type: array, items: {type: string}}
+        checkedAt: {type: string, format: date-time}
+    VerifiedServerFile:
+      type: object
+      required: [name, path, sizeBytes, sha256]
+      properties:
+        name: {type: string, enum: [AvorionServer.exe, ServerRunner.exe]}
+        path: {type: string}
+        sizeBytes: {type: integer, format: int64, minimum: 65536}
+        sha256: {type: string, pattern: "^[a-f0-9]{64}$"}
+        version: {type: [string, "null"]}
+    UpdateVerificationResult:
+      type: object
+      required: [valid, appId, branch, serverDirectory, files, checks, verifiedAt]
+      properties:
+        valid: {type: boolean, const: true}
+        appId: {type: integer, const: 565060}
+        branch: {type: string, const: public}
+        serverDirectory: {type: string}
+        installedBuildId: {type: [string, "null"]}
+        files: {type: array, minItems: 2, maxItems: 2, items: {$ref: "#/components/schemas/VerifiedServerFile"}}
+        checks: {type: array, items: {type: string}}
+        verifiedAt: {type: string, format: date-time}
+    TaskKind:
+      type: string
+      enum: [scheduled-save, scheduled-safe-restart]
+    AutomationTaskInput:
+      type: object
+      required: [kind, scheduleKind, enabled]
+      properties:
+        kind: {$ref: "#/components/schemas/TaskKind"}
+        enabled: {type: boolean}
+        scheduleKind: {type: string, enum: [interval, weekly]}
+        intervalMinutes: {type: [integer, "null"], enum: [15, 30, 60, 120, null]}
+        dayOfWeek: {type: [integer, "null"], minimum: 1, maximum: 7}
+        localTime: {type: [string, "null"], pattern: "^[0-2][0-9]:[0-5][0-9]$"}
+    AutomationTask:
+      allOf:
+        - {$ref: "#/components/schemas/AutomationTaskInput"}
+        - type: object
+          required: [taskId, name, timeZone, nextRunAt, createdAt, updatedAt]
+          properties:
+            taskId: {type: string}
+            name: {type: string}
+            timeZone: {type: string, const: Asia/Shanghai}
+            nextRunAt: {type: string, format: date-time}
+            lastRunAt: {type: [string, "null"], format: date-time}
+            lastOperationId: {type: [string, "null"]}
+            lastOperationStatus: {type: [string, "null"], enum: [queued, running, succeeded, failed, cancelled, null]}
+            lastErrorMessage: {type: [string, "null"]}
+            createdAt: {type: string, format: date-time}
+            updatedAt: {type: string, format: date-time}
+    BackupRecord:
+      type: object
+      required: [backupId, fileName, createdAt, sizeBytes, status]
+      properties:
+        backupId: {type: string}
+        fileName: {type: string}
+        createdAt: {type: string, format: date-time}
+        sizeBytes: {type: integer, minimum: 0}
+        status: {type: string, enum: [available, incomplete, unreadable, restoring]}
+    LogCategory:
+      type: string
+      enum: [Error, Warning, Player, MOD, RCON, Save, Other]
+    LogEntry:
+      type: object
+      required: [id, occurredAt, category, message, rawLine, sourceFile, parseConfidence]
+      properties:
+        id: {type: string}
+        occurredAt: {type: string, format: date-time}
+        category: {$ref: "#/components/schemas/LogCategory"}
+        message: {type: string}
+        rawLine: {type: string}
+        sourceFile: {type: string}
+        parseConfidence: {type: number, minimum: 0, maximum: 1}
+    DiagnosticStatus:
+      type: string
+      enum: [healthy, warning, error, unknown]
+    DiagnosticItem:
+      type: object
+      required: [key, status, resultCode, message, provenance]
+      properties:
+        key:
+          type: string
+          enum: [process, game-port, steam-query, rcon, steamcmd, galaxy-path, disk-space, last-save, last-backup, memory-trend, mod-errors]
+        status: {$ref: "#/components/schemas/DiagnosticStatus"}
+        resultCode: {type: string}
+        message: {type: string}
+        evidence: {type: object, additionalProperties: true}
+        provenance: {$ref: "#/components/schemas/Provenance"}
+    DiagnosticRun:
+      type: object
+      required: [runId, status, startedAt, items]
+      properties:
+        runId: {type: string}
+        status: {type: string, enum: [queued, running, completed, failed]}
+        startedAt: {type: string, format: date-time}
+        completedAt: {type: [string, "null"], format: date-time}
+        items: {type: array, items: {$ref: "#/components/schemas/DiagnosticItem"}}
+    OperationAccepted:
+      type: object
+      required: [operationId, status, acceptedAt]
+      properties:
+        operationId: {type: string}
+        status: {type: string, const: queued}
+        acceptedAt: {type: string, format: date-time}
+    Operation:
+      type: object
+      required: [operationId, type, status, acceptedAt]
+      properties:
+        operationId: {type: string}
+        type: {type: string}
+        status: {type: string, enum: [queued, running, succeeded, failed, cancelled]}
+        progressPercent: {type: [number, "null"], minimum: 0, maximum: 100}
+        currentStep: {type: [string, "null"]}
+        acceptedAt: {type: string, format: date-time}
+        startedAt: {type: [string, "null"], format: date-time}
+        completedAt: {type: [string, "null"], format: date-time}
+        result: {type: [object, "null"], additionalProperties: true}
+        error: {oneOf: [{$ref: "#/components/schemas/ErrorDetail"}, {type: "null"}]}
+    ErrorDetail:
+      type: object
+      required: [code, message, requestId, retryable]
+      properties:
+        code: {type: string}
+        message: {type: string}
+        requestId: {type: string}
+        retryable: {type: boolean}
+        details: {type: object, additionalProperties: true}
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error: {$ref: "#/components/schemas/ErrorDetail"}

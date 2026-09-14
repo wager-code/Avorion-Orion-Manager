@@ -1,0 +1,43 @@
+{
+  "screenshots": [
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\inventory-real\\inventory-1920x1080.png",
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\inventory-real\\inventory-1440x900.png"
+  ],
+  "checks": [
+    {
+      "viewport": "1920x1080",
+      "turretRows": 2,
+      "showsMiningLaser": true,
+      "showsChainGun": true,
+      "showsMaterial": true,
+      "showsTech": true,
+      "showsDps": true,
+      "showsRange": true,
+      "leaksUserdata": false,
+      "horizontalOverflow": false,
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "clientHeight": 1038,
+      "scrollHeight": 1268
+    },
+    {
+      "viewport": "1440x900",
+      "turretRows": 2,
+      "showsMiningLaser": true,
+      "showsChainGun": true,
+      "showsMaterial": true,
+      "showsTech": true,
+      "showsDps": true,
+      "showsRange": true,
+      "leaksUserdata": false,
+      "horizontalOverflow": false,
+      "clientWidth": 718,
+      "scrollWidth": 718,
+      "clientHeight": 858,
+      "scrollHeight": 1268
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedResponses": []
+}

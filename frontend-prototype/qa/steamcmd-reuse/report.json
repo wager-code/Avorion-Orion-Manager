@@ -1,0 +1,26 @@
+{
+  "screenshots": [
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\steamcmd-reuse\\01-real-existing-steamcmd-1920x1080.png",
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\steamcmd-reuse\\01-real-existing-steamcmd-1440x900.png"
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "checks": [
+    {
+      "viewport": "1920x1080",
+      "nextActionVisible": false,
+      "operationRecoveredInUrl": true,
+      "horizontalOverflow": false,
+      "verticalScroll": false,
+      "visibleTextOverflows": []
+    },
+    {
+      "viewport": "1440x900",
+      "nextActionVisible": false,
+      "operationRecoveredInUrl": true,
+      "horizontalOverflow": false,
+      "verticalScroll": true,
+      "visibleTextOverflows": []
+    }
+  ]
+}

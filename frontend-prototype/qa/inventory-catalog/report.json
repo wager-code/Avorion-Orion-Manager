@@ -1,0 +1,64 @@
+{
+  "screenshots": [
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\inventory-catalog\\catalog-1920x1080.png",
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\inventory-catalog\\catalog-1440x900.png",
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\inventory-catalog\\catalog-1672x941.png"
+  ],
+  "checks": [
+    {
+      "viewport": "1920x1080",
+      "initialCount": 58,
+      "loadedIconCount": 58,
+      "grantableCount": 11,
+      "turretCount": 19,
+      "miningSearchCount": 2,
+      "showsDefinitionTotal": false,
+      "showsIndexedIconTotal": false,
+      "showsConnectedSource": false,
+      "showsStoryBlocked": true,
+      "horizontalOverflow": false,
+      "clientWidth": 1598,
+      "scrollWidth": 1598,
+      "clientHeight": 1046,
+      "scrollHeight": 3326
+    },
+    {
+      "viewport": "1440x900",
+      "initialCount": 58,
+      "loadedIconCount": 58,
+      "grantableCount": 11,
+      "turretCount": 19,
+      "miningSearchCount": 2,
+      "showsDefinitionTotal": false,
+      "showsIndexedIconTotal": false,
+      "showsConnectedSource": false,
+      "showsStoryBlocked": true,
+      "horizontalOverflow": false,
+      "clientWidth": 1122,
+      "scrollWidth": 1122,
+      "clientHeight": 866,
+      "scrollHeight": 3326
+    },
+    {
+      "viewport": "1672x941",
+      "initialCount": 58,
+      "loadedIconCount": 58,
+      "grantableCount": 11,
+      "turretCount": 19,
+      "miningSearchCount": 2,
+      "showsDefinitionTotal": false,
+      "showsIndexedIconTotal": false,
+      "showsConnectedSource": false,
+      "showsStoryBlocked": true,
+      "horizontalOverflow": false,
+      "clientWidth": 1354,
+      "scrollWidth": 1354,
+      "clientHeight": 907,
+      "scrollHeight": 3326
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedResponses": [],
+  "failedCatalogResponses": []
+}

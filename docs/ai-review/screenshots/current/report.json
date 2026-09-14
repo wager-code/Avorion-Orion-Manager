@@ -1,0 +1,567 @@
+{
+  "capturedAt": "2026-09-10T02:12:44.884Z",
+  "baseUrl": "http://127.0.0.1:4173",
+  "note": "Current local runtime state; no application API responses are mocked.",
+  "pages": [
+    {
+      "order": "01",
+      "slug": "server-control",
+      "label": "服务器管理 · 控制",
+      "route": "/server/control",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/01-server-control-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n控制\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n服务器状态\n已停止\n未发现受管进程\n—\nRCON\n未连接\n服务器未运行\n—\nSteam Query\n不可用\n服务器未运行\n—\n最近保存\n09/10 06:22\n服务器文件系统\n服务器控制\n\n所有操作均由 Agent 验证受管进程并通过本机 RCON 执行\n\n已停止\n服务器当前已停止\n启动后会核对可执行文件、进程身份，并等待 RCON 认证。\n启动服务器\n紧急强制终止\n仅在安全关闭失败时使用；Agent 会再次核对受管路径和当前 PID。\n强制终止\n快速维护\n\n进入已规划的服务器维护页面\n\n存档备份\n读取服务器备份\n检查更新\n进入更新管理\n查看日志\n查看真实日志\n运行诊断\n检测服务器状态\n运行信息\n\n来自受管进程与服务器配置的实时结果\n\nAvorion 版本\nBuild 22295362\n运行时间\n—\n在线玩家\n不可用\n当前存档\nMyGalaxy\n最近事件\n\n从服务器日志文件读取，不使用 Mock\n\n查看全部\n2026-09-10 06-22-01| RCON[127.0.0.1] Logged out.\n09/10 06:22\n2026-09-10 06-22-01| RCON[127.0.0.1] Logged in.\n09/10 06:22\n2026-09-10 06-21-58| RCON[127.0.0.1] Logged out.\n09/10 06:21\n2026-09-10 06-21-58| RCON[127.0.0.1] Command: '/orionadmin players 1070f6f599f54ddab798621e6e82f605 0 10'\n09/10 06:21\n2026-09-10 06-21-58| RCON[127.0.0.1] Logged in.\n09/10 06:21\n2026-09-10 06-21-48| RCON[127.0.0.1] Logged out.\n09/10 06:21\nServer Agent 已连接\n状态来源：受控启动档案 + 本机 RCON",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 1049,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "02",
+      "slug": "server-performance",
+      "label": "服务器管理 · 性能",
+      "route": "/server/performance",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/02-server-performance-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n性能\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n性能监控\n服务器未运行\n\nWindows Agent 实时采集 · 最近更新 10:12:47 · 网络为整机总流量\n\n1 小时\n24 小时\n7 天\n刷新\nCPU 使用率\n—\n\nAvorion 进程指标不可用\n\n内存使用\n—\n\nAvorion 进程指标不可用\n\n磁盘空间\n903.7\nGB\n\n可用 / 931.5 GB · E:\\\n\n网络流量\n0.19\nMbps\n\n主机上传 5.21 Mbps\n\n在线玩家\n—\n\nSteam Query 尚不可用\n\n运行时间\n—\n\n服务端进程未运行\n\nCPU 与内存趋势\n\n24 小时范围 · 真实采样 · 独立量纲\n\nCPU 当前 —\nCPU\n0 %\n50%\n100%\n内存\n0.06 GB\n16:03\n17:21\n21:57\n23:15\n00:33\n01:59\n03:17\n04:35\n10:12\n0.0GB\n0.1GB\n0.3GB\n主机网络流量\n\n整机网卡下载与上传，不代表 Avorion 单进程\n\n下载\n上传\n4.0\n8.0\n下载 0.19 Mbps\n上传 5.21 Mbps\n在线玩家趋势\n\n仅显示可验证的真实人数\n\n—\nSteam Query 未提供真实玩家历史\n区间峰值 — 人\n24 小时统计\n\n真实样本的当前值、平均值与峰值\n\n指标\t当前\t24h 平均\t24h 峰值\nCPU 使用率\t—\t0.1%\t100.0%\n内存使用\t—\t0.20 GB\t0.26 GB\n主机网络下载\t0.19 Mbps\t0.52 Mbps\t22.26 Mbps\n主机网络上传\t5.21 Mbps\t0.26 Mbps\t4.76 Mbps\n在线玩家\t—\t—\t—\n内存观察\n进程内存较区间起点增长\n\n从 0.04 GB 变为 0.06 GB，变化 +0.03 GB。\n\n进程 / 主机内存容量\n—\n\n此比例不是主机总内存使用率\n\n0.0",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 1187,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "03",
+      "slug": "server-memory",
+      "label": "服务器管理 · 内存与星区",
+      "route": "/server/memory",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/03-server-memory-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n内存与星区\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n内存与星区\n数据不可用\n\n内存来自 Windows 上的真实 Avorion 进程；未接入的数据明确显示为不可用。\n\nAvorion 当前内存\n— / 主机 31.9 GB\n区间首个样本\n0.04 GB\n区间变化\n—\n已加载星区\n不可用\n进程占主机物理内存\n—\n加载星区\n\n实时读取 Avorion 加载列表；仅可请求卸载服务端再次确认无玩家的星区\n\n组件未连接\n管理组件尚未返回星区\n受管 Avorion 服务端当前未运行\n内存告警策略\n\n已持久化 · 21:00\n\n告警阈值（GB）\n页面告警\n达到阈值时在内存页明确标记\n自动动作保持关闭\n可在左侧逐个尝试安全卸载空闲星区；自动批量卸载和临界自动重启仍不会随此策略启用。\n保存告警策略\n近 24 小时进程内存\n\n最后采样：10:12 · Windows Agent\n\n刷新\n16:04\n21:51\n01:30\n06:22\n0.0GB\n0.1GB\n0.1GB\n0.2GB\n0.3GB\n区间首值 0.04 GB\n当前 —\n0.0 GB",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 935,
+      "consoleErrors": [
+        {
+          "route": "/server/memory",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "failedResponses": [
+        {
+          "route": "/server/memory",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/sectors?offset=0&limit=50"
+        }
+      ]
+    },
+    {
+      "order": "04",
+      "slug": "server-update",
+      "label": "服务器管理 · 更新",
+      "route": "/server/update",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/04-server-update-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n更新\n本机 Avorion 服务器\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n服务器更新\n\n安装路径与服务器管理配置均已验证，可以进入更新管理。\n\nSteamCMD\n正常\nAvorion 服务端\n已识别\n更新能力\n已就绪\n管理配置\n已完成\n更新环境验证\n\n用于检查、验证和更新服务端文件\n\nSteamCMD 可执行文件\n文件可读取\n服务端安装目录\n目录与程序可读取\nAvorionServer.exe\n已找到，版本信息未知\n服务端磁盘空间\n904 GB 可用\n服务器配置检测\n\n来自受控启动档案与实时服务状态\n\nGalaxy / 存档\nMyGalaxy\n基础服务器配置\n已完成 · 最大 10 人\n游戏与查询端口\n游戏端口已配置；Query 探测待接入\nRCON\n已配置；当前未连接\n重新验证路径\n进入更新管理\n可先检查版本或验证文件\n进入服务器控制\n管理配置已验证",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 930,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "05",
+      "slug": "server-tasks",
+      "label": "服务器管理 · 自动任务",
+      "route": "/server/tasks",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/05-server-tasks-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n自动任务\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n自动任务\n调度器已连接\n\n任务保存在本机数据库；当前只开放已验证的定时保存与安全重启。\n\n新建任务\n任务总数\n0\n已启用\n0\n已暂停\n0\n下一任务\n暂无已启用任务\n任务列表\n刷新\n全部\n0\n已启用\n0\n已暂停\n0\n任务\t执行计划\t下次执行\t状态\t操作\n\n还没有自动任务\n创建后，任务会真实写入本机数据库并由 Server Agent 调度。\n下一次执行\n暂无已启用任务\n\n启用任务后将在此显示后端计算的真实执行时间。",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 903,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "06",
+      "slug": "server-backup",
+      "label": "服务器管理 · 备份",
+      "route": "/server/backup",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/06-server-backup-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n备份\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n存档备份\n真实备份已读取\n\n只读扫描 Avorion 服务器自动生成的真实备份文件。\n\n备份文件\n5\n最新备份\n4 小时前\n占用空间\n482 KB\n读取状态\n正常\n备份记录\n\n已读取 5 个真实 .bak 文件 · 刚刚刷新\n\n刷新记录\n选择\n\t备份时间\t文件大小\t状态\n\t\n4 小时前\n（2026-09-10 05:59:48 Asia/Shanghai）\n\t98.7 KB\t\n可用\n\t\n5 小时前\n（2026-09-10 04:59:42 Asia/Shanghai）\n\t97.6 KB\t\n可用\n\t\n6 小时前\n（2026-09-10 03:59:37 Asia/Shanghai）\n\t96.5 KB\t\n可用\n\t\n7 小时前\n（2026-09-10 02:59:31 Asia/Shanghai）\n\t95.3 KB\t\n可用\n\t\n8 小时前\n（2026-09-10 01:59:25 Asia/Shanghai）\n\t94.1 KB\t\n可用\n\n仅显示 Server Agent 实际读取到的 Avorion .bak 文件\n\n恢复此备份\n备份时间\n4 小时前\n文件大小\n98.7 KB\n状态\n可用\n1\n当前存档备份\n先为当前存档建立可验证的安全副本。\n2\n安全停服\n保存数据并确认服务端已经完全停止。\n3\n恢复备份\n验证目标文件后替换对应的世界数据。\n4\n启动服务器\n重新启动服务器并等待初始化完成。\n5\n健康检查\n确认服务、RCON 与存档加载状态正常。\n恢复会改写世界数据；执行前自动创建服务端与 Galaxy 的全量校验安全点。\n恢复所选备份",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 961,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "07",
+      "slug": "server-logs",
+      "label": "服务器管理 · 日志",
+      "route": "/server/logs",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/07-server-logs-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n日志\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n实时日志\n真实日志已连接\n\n读取服务器真实日志文件，并按类别快速定位问题。\n\n管理操作记录\n\n安装、初始化、控制、更新检查和诊断的真实后台阶段\n\n刷新\n成功\n安全停服\ncompleted\n100%\n2026-09-09 23:55:53\nee9e2b7ac8\n成功\nalliance.inventory.system-upgrade.grant\ncompleted\n100%\n2026-09-09 21:41:36\n35dccc4e02\n成功\nplayer.inventory.system-upgrade.grant\ncompleted\n100%\n2026-09-09 21:41:36\nbbd9e6cdda\n成功\n启动服务器\ncompleted\n100%\n2026-09-09 21:40:58\n01a82c7877\n成功\n安全停服\ncompleted\n100%\n2026-09-09 21:37:41\n6fc9282805\n失败\nplayer.inventory.system-upgrade.grant\n插件发放结果无法确认；请刷新库存后再决定是否重新提交，系统不会自动重试\n35%\n2026-09-09 21:35:10\n20cebe0787\n成功\n启动服务器\ncompleted\n100%\n2026-09-09 21:24:06\nec8a34277c\n成功\nreward.batch.target.direct\ncompleted\n100%\n2026-09-09 16:14:03\n67578782e3\n成功\nreward.batch.create\ncompleted\n100%\n2026-09-09 16:14:03\ncda3312b61\n成功\nreward.batch.target.mail\ncompleted\n100%\n2026-09-09 16:12:54\nfe6bdc5ae6\n成功\nreward.batch.create\ncompleted\n100%\n2026-09-09 16:12:54\nf713720606\n成功\n启动服务器\ncompleted\n100%\n2026-09-09 16:05:24\ne8787da8eb\n成功\nalliance.reward.grant\ncompleted\n100%\n2026-09-08 23:31:02\na92ecae56d\n成功\nalliance.reward.grant\ncompleted\n100%\n2026-09-08 23:30:52\nb632835d86\n成功\nalliance.reward.grant\ncompleted\n100%\n2026-09-08 23:14:47\n7730b067ef\n成功\nalliance.reward.grant\ncompleted\n100%\n2026-09-08 23:14:47\n80b470e155\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 23:09:29\n5262d64647\n成功\n安全停服\ncompleted\n100%\n2026-09-08 23:08:06\n11a416f69d\n成功\n服务器诊断\ncompleted\n100%\n2026-09-08 22:34:42\nf9b7aac423\n成功\nplayer.reward.grant\ncompleted\n100%\n2026-09-08 18:34:53\ndee019bcb4\n成功\nplayer.reward.grant\ncompleted\n100%\n2026-09-08 18:34:20\nc2ec2e64e0\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 18:31:21\n852c893034\n成功\n安全停服\ncompleted\n100%\n2026-09-08 18:30:09\n5aef8f6e14\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 17:33:26\n8d43d381a5\n成功\n安全停服\ncompleted\n100%\n2026-09-08 17:31:51\n4392461502\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 17:19:36\neba10418c6\n成功\n安全停服\ncompleted\n100%\n2026-09-08 17:18:32\nf3efa1d9cb\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 17:15:20\n22902d9a1f\n成功\n安全停服\ncompleted\n100%\n2026-09-08 17:13:26\ne3dc70dd94\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 10:54:24\n2c7cd4b32f\n服务器实时日志\n搜索日志内容\n自动滚动\n复制可见日志\n全部\nError\nWarning\nPlayer\nMOD\nRCON\nSave\n2026-09-10 06:22:01\nRCON\nRCON[127.0.0.1] Logged out.\n2026-09-10 06:22:01\nRCON\nRCON[127.0.0.1] Logged in.\n2026-09-10 06:21:58\nRCON\nRCON[127.0.0.1] Logged out.\n2026",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 1258,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "08",
+      "slug": "server-diagnostics",
+      "label": "服务器管理 · 诊断",
+      "route": "/server/diagnostics",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/08-server-diagnostics-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n诊断\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n服务器诊断\n等待诊断\n\n检查服务器运行环境、连接和数据状态，并输出可追溯的真实中文结果。\n\n开始诊断\n尚未运行诊断\n\n点击“开始诊断”后读取 11 项真实检查结果。\n\n尚未完成\n服务与连接\nAvorion 进程\n运行诊断后显示真实结果\n待检查\n游戏端口\n运行诊断后显示真实结果\n待检查\nSteam Query\n运行诊断后显示真实结果\n待检查\nRCON\n运行诊断后显示真实结果\n待检查\n运行环境\nSteamCMD\n运行诊断后显示真实结果\n待检查\nGalaxy 路径\n运行诊断后显示真实结果\n待检查\n磁盘空间\n运行诊断后显示真实结果\n待检查\n数据与运行状态\n最近保存\n运行诊断后显示真实结果\n待检查\n最近备份\n运行诊断后显示真实结果\n待检查\n内存趋势\n运行诊断后读取最近 6 小时真实样本\n待检查\n真实样本不足，暂不绘制趋势\n现有 MOD 日志错误\n运行诊断后显示真实结果\n待检查",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 900,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "09",
+      "slug": "players",
+      "label": "玩家管理",
+      "route": "/players",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/09-players-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "玩家管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n玩家管理\n数据不可用\n\n仅展示服务端能够确认的真实数据\n\n刷新\n真实玩家数据不可用\n受管 Avorion 服务端当前未运行\n当前在线\n—\n玩家所在星区\n—\n管理组件\n未连接\n当前在线玩家\n\n玩家退出后会从列表移除，不保留离线档案\n\n—\n玩家名称\t状态\t所在星区\t玩家索引\t更新时间\t操作\n仅显示服务端当前确认在线的玩家；不展示推测字段。\n等待管理组件\n最近玩家事件\n\n来自真实服务器日志\n\n暂无玩家事件\n服务器日志出现加入或离开记录后会显示在这里。\n未使用模拟玩家数据",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 986,
+      "consoleErrors": [
+        {
+          "route": "/players",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        },
+        {
+          "route": "/players",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "failedResponses": [
+        {
+          "route": "/players",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/players?offset=0&limit=10"
+        },
+        {
+          "route": "/players",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/players?offset=0&limit=10"
+        }
+      ]
+    },
+    {
+      "order": "10",
+      "slug": "alliances",
+      "label": "联盟管理",
+      "route": "/alliances",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/10-alliances-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "联盟管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n联盟管理\n数据不可用\n\n仅展示服务端能够确认的真实联盟\n\n刷新\n真实联盟数据不可用\n受管 Avorion 服务端当前未运行\n联盟总数\n—\n在线联盟\n—\n成员总数\n—\n在线成员\n—\n联盟列表\n\n从玩家所属关系自动发现\n\n—\n未使用模拟联盟数据\n暂无可查看的联盟\n此页面不会创建示例联盟；游戏内存在玩家联盟后将自动显示成员详情。",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 986,
+      "consoleErrors": [
+        {
+          "route": "/alliances",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        },
+        {
+          "route": "/alliances",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "failedResponses": [
+        {
+          "route": "/alliances",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/alliances?offset=0&limit=10"
+        },
+        {
+          "route": "/alliances",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/alliances?offset=0&limit=10"
+        }
+      ]
+    },
+    {
+      "order": "11",
+      "slug": "game-rewards",
+      "label": "游戏管理 · 奖励中心",
+      "route": "/game/rewards",
+      "viewport": "1440x900",
+      "screenshot": "screenshots/current/11-game-rewards-1440x900-full.png",
+      "horizontalOverflow": false,
+      "heading": "游戏管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n游戏管理\n\n创建礼包、批量发放并追踪每个目标的真实执行结果\n\n服务器当前不可执行\n奖励中心\n活动中心\n星区建设\n活动记录\n受管 Avorion 服务端当前未运行\n已选择目标\n0\n礼包内容\n2 项\n预计执行操作\n0\n风险等级\n未计算\n创建奖励批次\n\n一个批次固定内容，逐个目标执行并留下独立结果\n\n草稿未提交\n游戏内邮件\n直接到账\n目标：玩家\n1. 选择接收玩家\n0 个已知玩家档案 · 仅显示身份\n尚未选择目标；这里不会重复显示玩家在线状态、位置或资产详情。\n2. 邮件内容\n通过 Player.addMail(Mail) 投递\n邮件标题\n邮件正文\n3. 礼包资产\n每名玩家获得相同内容\nCredits\n铁\n钛\n纳奥石\n崔钢\n赛安金属\n欧格石\n阿沃里昂\n添加资产\n资产类型\n每位玩家数量\n操作\nCredits\n25,000\n移除\n钛\n2,500\n移除\n将创建 0 个持久化逐人操作；失败目标不会自动重试。\n核对并创建批次\n最近批次\n\n批次摘要，不复制玩家列表\n\n刷新\n还没有奖励批次\n首次执行后会在这里显示真实结果。\n页面职责边界\n\n这里只负责创建礼包、选择最小目标身份和查看批次结果。玩家在线、位置、个人资产仍只在玩家管理展示。",
+      "viewportWidth": 1440,
+      "documentWidth": 1440,
+      "viewportHeight": 900,
+      "documentHeight": 1074,
+      "consoleErrors": [
+        {
+          "route": "/game/rewards",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        },
+        {
+          "route": "/game/rewards",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "failedResponses": [
+        {
+          "route": "/game/rewards",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/players-known?offset=0&limit=50"
+        },
+        {
+          "route": "/game/rewards",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/players-known?offset=0&limit=50"
+        }
+      ]
+    },
+    {
+      "order": "01",
+      "slug": "server-control",
+      "label": "服务器管理 · 控制",
+      "route": "/server/control",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/01-server-control-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n控制\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n服务器状态\n已停止\n未发现受管进程\n—\nRCON\n未连接\n服务器未运行\n—\nSteam Query\n不可用\n服务器未运行\n—\n最近保存\n09/10 06:22\n服务器文件系统\n服务器控制\n\n所有操作均由 Agent 验证受管进程并通过本机 RCON 执行\n\n已停止\n服务器当前已停止\n启动后会核对可执行文件、进程身份，并等待 RCON 认证。\n启动服务器\n紧急强制终止\n仅在安全关闭失败时使用；Agent 会再次核对受管路径和当前 PID。\n强制终止\n快速维护\n\n进入已规划的服务器维护页面\n\n存档备份\n读取服务器备份\n检查更新\n进入更新管理\n查看日志\n查看真实日志\n运行诊断\n检测服务器状态\n运行信息\n\n来自受管进程与服务器配置的实时结果\n\nAvorion 版本\nBuild 22295362\n运行时间\n—\n在线玩家\n不可用\n当前存档\nMyGalaxy\n最近事件\n\n从服务器日志文件读取，不使用 Mock\n\n查看全部\n2026-09-10 06-22-01| RCON[127.0.0.1] Logged out.\n09/10 06:22\n2026-09-10 06-22-01| RCON[127.0.0.1] Logged in.\n09/10 06:22\n2026-09-10 06-21-58| RCON[127.0.0.1] Logged out.\n09/10 06:21\n2026-09-10 06-21-58| RCON[127.0.0.1] Command: '/orionadmin players 1070f6f599f54ddab798621e6e82f605 0 10'\n09/10 06:21\n2026-09-10 06-21-58| RCON[127.0.0.1] Logged in.\n09/10 06:21\n2026-09-10 06-21-48| RCON[127.0.0.1] Logged out.\n09/10 06:21\nServer Agent 已连接\n状态来源：受控启动档案 + 本机 RCON",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1081,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "02",
+      "slug": "server-performance",
+      "label": "服务器管理 · 性能",
+      "route": "/server/performance",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/02-server-performance-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n性能\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n性能监控\n服务器未运行\n\nWindows Agent 实时采集 · 最近更新 10:13:06 · 网络为整机总流量\n\n1 小时\n24 小时\n7 天\n刷新\nCPU 使用率\n—\n\nAvorion 进程指标不可用\n\n内存使用\n—\n\nAvorion 进程指标不可用\n\n磁盘空间\n903.7\nGB\n\n可用 / 931.5 GB · E:\\\n\n网络流量\n0.04\nMbps\n\n主机上传 0.37 Mbps\n\n在线玩家\n—\n\nSteam Query 尚不可用\n\n运行时间\n—\n\n服务端进程未运行\n\nCPU 与内存趋势\n\n24 小时范围 · 真实采样 · 独立量纲\n\nCPU 当前 —\nCPU\n0 %\n50%\n100%\n内存\n0.06 GB\n16:03\n16:57\n17:52\n22:05\n22:59\n23:54\n00:48\n01:52\n02:46\n03:41\n04:35\n05:30\n10:13\n0.0GB\n0.1GB\n0.3GB\n主机网络流量\n\n整机网卡下载与上传，不代表 Avorion 单进程\n\n下载\n上传\n6.0\n12.0\n下载 0.04 Mbps\n上传 0.37 Mbps\n在线玩家趋势\n\n仅显示可验证的真实人数\n\n—\nSteam Query 未提供真实玩家历史\n区间峰值 — 人\n24 小时统计\n\n真实样本的当前值、平均值与峰值\n\n指标\t当前\t24h 平均\t24h 峰值\nCPU 使用率\t—\t0.1%\t100.0%\n内存使用\t—\t0.20 GB\t0.26 GB\n主机网络下载\t0.04 Mbps\t0.52 Mbps\t22.26 Mbps\n主机网络上传\t0.37 Mbps\t0.26 Mbps\t4.76 Mbps\n在线玩家\t—\t—\t—\n内存观察\n进程内存较区间起点增长\n\n从 0.04 GB 变为 0.06 GB，变化 +0.03 GB。\n\n进程 / 主机内存容量\n—\n\n此比例不是主机总内存使用率\n\n0.0",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1080,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "03",
+      "slug": "server-memory",
+      "label": "服务器管理 · 内存与星区",
+      "route": "/server/memory",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/03-server-memory-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n内存与星区\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n内存与星区\n数据不可用\n\n内存来自 Windows 上的真实 Avorion 进程；未接入的数据明确显示为不可用。\n\nAvorion 当前内存\n— / 主机 31.9 GB\n区间首个样本\n0.04 GB\n区间变化\n—\n已加载星区\n不可用\n进程占主机物理内存\n—\n加载星区\n\n实时读取 Avorion 加载列表；仅可请求卸载服务端再次确认无玩家的星区\n\n组件未连接\n管理组件尚未返回星区\n受管 Avorion 服务端当前未运行\n内存告警策略\n\n已持久化 · 21:00\n\n告警阈值（GB）\n页面告警\n达到阈值时在内存页明确标记\n自动动作保持关闭\n可在左侧逐个尝试安全卸载空闲星区；自动批量卸载和临界自动重启仍不会随此策略启用。\n保存告警策略\n近 24 小时进程内存\n\n最后采样：10:13 · Windows Agent\n\n刷新\n16:04\n18:05\n23:27\n02:41\n06:22\n0.0GB\n0.1GB\n0.1GB\n0.2GB\n0.3GB\n区间首值 0.04 GB\n当前 —\n0.0 GB",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1080,
+      "consoleErrors": [
+        {
+          "route": "/server/memory",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "failedResponses": [
+        {
+          "route": "/server/memory",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/sectors?offset=0&limit=50"
+        }
+      ]
+    },
+    {
+      "order": "04",
+      "slug": "server-update",
+      "label": "服务器管理 · 更新",
+      "route": "/server/update",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/04-server-update-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n更新\n本机 Avorion 服务器\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n服务器更新\n\n安装路径与服务器管理配置均已验证，可以进入更新管理。\n\nSteamCMD\n正常\nAvorion 服务端\n已识别\n更新能力\n已就绪\n管理配置\n已完成\n更新环境验证\n\n用于检查、验证和更新服务端文件\n\nSteamCMD 可执行文件\n文件可读取\n服务端安装目录\n目录与程序可读取\nAvorionServer.exe\n已找到，版本信息未知\n服务端磁盘空间\n904 GB 可用\n服务器配置检测\n\n来自受控启动档案与实时服务状态\n\nGalaxy / 存档\nMyGalaxy\n基础服务器配置\n已完成 · 最大 10 人\n游戏与查询端口\n游戏端口已配置；Query 探测待接入\nRCON\n已配置；当前未连接\n重新验证路径\n进入更新管理\n可先检查版本或验证文件\n进入服务器控制\n管理配置已验证",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1080,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "05",
+      "slug": "server-tasks",
+      "label": "服务器管理 · 自动任务",
+      "route": "/server/tasks",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/05-server-tasks-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n自动任务\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n自动任务\n调度器已连接\n\n任务保存在本机数据库；当前只开放已验证的定时保存与安全重启。\n\n新建任务\n任务总数\n0\n已启用\n0\n已暂停\n0\n下一任务\n暂无已启用任务\n任务列表\n刷新\n全部\n0\n已启用\n0\n已暂停\n0\n任务\t执行计划\t下次执行\t状态\t操作\n\n还没有自动任务\n创建后，任务会真实写入本机数据库并由 Server Agent 调度。\n下一次执行\n暂无已启用任务\n\n启用任务后将在此显示后端计算的真实执行时间。",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1080,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "06",
+      "slug": "server-backup",
+      "label": "服务器管理 · 备份",
+      "route": "/server/backup",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/06-server-backup-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n备份\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n存档备份\n真实备份已读取\n\n只读扫描 Avorion 服务器自动生成的真实备份文件。\n\n备份文件\n5\n最新备份\n4 小时前\n占用空间\n482 KB\n读取状态\n正常\n备份记录\n\n已读取 5 个真实 .bak 文件 · 刚刚刷新\n\n刷新记录\n选择\n\t备份时间\t文件大小\t状态\n\t\n4 小时前\n（2026-09-10 05:59:48 Asia/Shanghai）\n\t98.7 KB\t\n可用\n\t\n5 小时前\n（2026-09-10 04:59:42 Asia/Shanghai）\n\t97.6 KB\t\n可用\n\t\n6 小时前\n（2026-09-10 03:59:37 Asia/Shanghai）\n\t96.5 KB\t\n可用\n\t\n7 小时前\n（2026-09-10 02:59:31 Asia/Shanghai）\n\t95.3 KB\t\n可用\n\t\n8 小时前\n（2026-09-10 01:59:25 Asia/Shanghai）\n\t94.1 KB\t\n可用\n\n仅显示 Server Agent 实际读取到的 Avorion .bak 文件\n\n恢复此备份\n备份时间\n4 小时前\n文件大小\n98.7 KB\n状态\n可用\n1\n当前存档备份\n先为当前存档建立可验证的安全副本。\n2\n安全停服\n保存数据并确认服务端已经完全停止。\n3\n恢复备份\n验证目标文件后替换对应的世界数据。\n4\n启动服务器\n重新启动服务器并等待初始化完成。\n5\n健康检查\n确认服务、RCON 与存档加载状态正常。\n恢复会改写世界数据；执行前自动创建服务端与 Galaxy 的全量校验安全点。\n恢复所选备份",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1080,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "07",
+      "slug": "server-logs",
+      "label": "服务器管理 · 日志",
+      "route": "/server/logs",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/07-server-logs-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n日志\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n实时日志\n真实日志已连接\n\n读取服务器真实日志文件，并按类别快速定位问题。\n\n管理操作记录\n\n安装、初始化、控制、更新检查和诊断的真实后台阶段\n\n刷新\n成功\n安全停服\ncompleted\n100%\n2026-09-09 23:55:53\nee9e2b7ac8\n成功\nalliance.inventory.system-upgrade.grant\ncompleted\n100%\n2026-09-09 21:41:36\n35dccc4e02\n成功\nplayer.inventory.system-upgrade.grant\ncompleted\n100%\n2026-09-09 21:41:36\nbbd9e6cdda\n成功\n启动服务器\ncompleted\n100%\n2026-09-09 21:40:58\n01a82c7877\n成功\n安全停服\ncompleted\n100%\n2026-09-09 21:37:41\n6fc9282805\n失败\nplayer.inventory.system-upgrade.grant\n插件发放结果无法确认；请刷新库存后再决定是否重新提交，系统不会自动重试\n35%\n2026-09-09 21:35:10\n20cebe0787\n成功\n启动服务器\ncompleted\n100%\n2026-09-09 21:24:06\nec8a34277c\n成功\nreward.batch.target.direct\ncompleted\n100%\n2026-09-09 16:14:03\n67578782e3\n成功\nreward.batch.create\ncompleted\n100%\n2026-09-09 16:14:03\ncda3312b61\n成功\nreward.batch.target.mail\ncompleted\n100%\n2026-09-09 16:12:54\nfe6bdc5ae6\n成功\nreward.batch.create\ncompleted\n100%\n2026-09-09 16:12:54\nf713720606\n成功\n启动服务器\ncompleted\n100%\n2026-09-09 16:05:24\ne8787da8eb\n成功\nalliance.reward.grant\ncompleted\n100%\n2026-09-08 23:31:02\na92ecae56d\n成功\nalliance.reward.grant\ncompleted\n100%\n2026-09-08 23:30:52\nb632835d86\n成功\nalliance.reward.grant\ncompleted\n100%\n2026-09-08 23:14:47\n7730b067ef\n成功\nalliance.reward.grant\ncompleted\n100%\n2026-09-08 23:14:47\n80b470e155\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 23:09:29\n5262d64647\n成功\n安全停服\ncompleted\n100%\n2026-09-08 23:08:06\n11a416f69d\n成功\n服务器诊断\ncompleted\n100%\n2026-09-08 22:34:42\nf9b7aac423\n成功\nplayer.reward.grant\ncompleted\n100%\n2026-09-08 18:34:53\ndee019bcb4\n成功\nplayer.reward.grant\ncompleted\n100%\n2026-09-08 18:34:20\nc2ec2e64e0\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 18:31:21\n852c893034\n成功\n安全停服\ncompleted\n100%\n2026-09-08 18:30:09\n5aef8f6e14\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 17:33:26\n8d43d381a5\n成功\n安全停服\ncompleted\n100%\n2026-09-08 17:31:51\n4392461502\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 17:19:36\neba10418c6\n成功\n安全停服\ncompleted\n100%\n2026-09-08 17:18:32\nf3efa1d9cb\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 17:15:20\n22902d9a1f\n成功\n安全停服\ncompleted\n100%\n2026-09-08 17:13:26\ne3dc70dd94\n成功\n启动服务器\ncompleted\n100%\n2026-09-08 10:54:24\n2c7cd4b32f\n服务器实时日志\n搜索日志内容\n自动滚动\n复制可见日志\n全部\nError\nWarning\nPlayer\nMOD\nRCON\nSave\n2026-09-10 06:22:01\nRCON\nRCON[127.0.0.1] Logged out.\n2026-09-10 06:22:01\nRCON\nRCON[127.0.0.1] Logged in.\n2026-09-10 06:21:58\nRCON\nRCON[127.0.0.1] Logged out.\n2026",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1381,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "08",
+      "slug": "server-diagnostics",
+      "label": "服务器管理 · 诊断",
+      "route": "/server/diagnostics",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/08-server-diagnostics-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "服务器管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n服务器管理\n服务器管理\n/\n诊断\n本机 Avorion 服务器\nBuild 22295362\n·\nMyGalaxy\n已停止\n控制\n性能\n内存与星区\n更新\n自动任务\n备份\n日志\n诊断\n服务器诊断\n等待诊断\n\n检查服务器运行环境、连接和数据状态，并输出可追溯的真实中文结果。\n\n开始诊断\n尚未运行诊断\n\n点击“开始诊断”后读取 11 项真实检查结果。\n\n尚未完成\n服务与连接\nAvorion 进程\n运行诊断后显示真实结果\n待检查\n游戏端口\n运行诊断后显示真实结果\n待检查\nSteam Query\n运行诊断后显示真实结果\n待检查\nRCON\n运行诊断后显示真实结果\n待检查\n运行环境\nSteamCMD\n运行诊断后显示真实结果\n待检查\nGalaxy 路径\n运行诊断后显示真实结果\n待检查\n磁盘空间\n运行诊断后显示真实结果\n待检查\n数据与运行状态\n最近保存\n运行诊断后显示真实结果\n待检查\n最近备份\n运行诊断后显示真实结果\n待检查\n内存趋势\n运行诊断后读取最近 6 小时真实样本\n待检查\n真实样本不足，暂不绘制趋势\n现有 MOD 日志错误\n运行诊断后显示真实结果\n待检查",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1080,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "failedResponses": []
+    },
+    {
+      "order": "09",
+      "slug": "players",
+      "label": "玩家管理",
+      "route": "/players",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/09-players-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "玩家管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n玩家管理\n数据不可用\n\n仅展示服务端能够确认的真实数据\n\n刷新\n真实玩家数据不可用\n受管 Avorion 服务端当前未运行\n当前在线\n—\n玩家所在星区\n—\n管理组件\n未连接\n当前在线玩家\n\n玩家退出后会从列表移除，不保留离线档案\n\n—\n玩家名称\t状态\t所在星区\t玩家索引\t更新时间\t操作\n仅显示服务端当前确认在线的玩家；不展示推测字段。\n等待管理组件\n最近玩家事件\n\n来自真实服务器日志\n\n暂无玩家事件\n服务器日志出现加入或离开记录后会显示在这里。\n未使用模拟玩家数据",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1080,
+      "consoleErrors": [
+        {
+          "route": "/players",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        },
+        {
+          "route": "/players",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "failedResponses": [
+        {
+          "route": "/players",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/players?offset=0&limit=10"
+        },
+        {
+          "route": "/players",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/players?offset=0&limit=10"
+        }
+      ]
+    },
+    {
+      "order": "10",
+      "slug": "alliances",
+      "label": "联盟管理",
+      "route": "/alliances",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/10-alliances-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "联盟管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n联盟管理\n数据不可用\n\n仅展示服务端能够确认的真实联盟\n\n刷新\n真实联盟数据不可用\n受管 Avorion 服务端当前未运行\n联盟总数\n—\n在线联盟\n—\n成员总数\n—\n在线成员\n—\n联盟列表\n\n从玩家所属关系自动发现\n\n—\n未使用模拟联盟数据\n暂无可查看的联盟\n此页面不会创建示例联盟；游戏内存在玩家联盟后将自动显示成员详情。",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1080,
+      "consoleErrors": [
+        {
+          "route": "/alliances",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        },
+        {
+          "route": "/alliances",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "failedResponses": [
+        {
+          "route": "/alliances",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/alliances?offset=0&limit=10"
+        },
+        {
+          "route": "/alliances",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/alliances?offset=0&limit=10"
+        }
+      ]
+    },
+    {
+      "order": "11",
+      "slug": "game-rewards",
+      "label": "游戏管理 · 奖励中心",
+      "route": "/game/rewards",
+      "viewport": "1920x1080",
+      "screenshot": "screenshots/current/11-game-rewards-1920x1080.png",
+      "horizontalOverflow": false,
+      "heading": "游戏管理",
+      "title": "Avorion 管理中心",
+      "bodyText": "AVORION\n管理中心\n总览\n服务器管理\n玩家管理\n联盟管理\n游戏管理\n舰船管理\nMOD 管理\n文件与配置\n设置\n服务器已停止\nBuild 22295362\n游戏管理\n\n创建礼包、批量发放并追踪每个目标的真实执行结果\n\n服务器当前不可执行\n奖励中心\n活动中心\n星区建设\n活动记录\n受管 Avorion 服务端当前未运行\n已选择目标\n0\n礼包内容\n2 项\n预计执行操作\n0\n风险等级\n未计算\n创建奖励批次\n\n一个批次固定内容，逐个目标执行并留下独立结果\n\n草稿未提交\n游戏内邮件\n直接到账\n目标：玩家\n1. 选择接收玩家\n0 个已知玩家档案 · 仅显示身份\n尚未选择目标；这里不会重复显示玩家在线状态、位置或资产详情。\n2. 邮件内容\n通过 Player.addMail(Mail) 投递\n邮件标题\n邮件正文\n3. 礼包资产\n每名玩家获得相同内容\nCredits\n铁\n钛\n纳奥石\n崔钢\n赛安金属\n欧格石\n阿沃里昂\n添加资产\n资产类型\n每位玩家数量\n操作\nCredits\n25,000\n移除\n钛\n2,500\n移除\n将创建 0 个持久化逐人操作；失败目标不会自动重试。\n核对并创建批次\n最近批次\n\n批次摘要，不复制玩家列表\n\n刷新\n还没有奖励批次\n首次执行后会在这里显示真实结果。\n页面职责边界\n\n这里只负责创建礼包、选择最小目标身份和查看批次结果。玩家在线、位置、个人资产仍只在玩家管理展示。",
+      "viewportWidth": 1920,
+      "documentWidth": 1920,
+      "viewportHeight": 1080,
+      "documentHeight": 1080,
+      "consoleErrors": [
+        {
+          "route": "/game/rewards",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        },
+        {
+          "route": "/game/rewards",
+          "message": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "failedResponses": [
+        {
+          "route": "/game/rewards",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/players-known?offset=0&limit=50"
+        },
+        {
+          "route": "/game/rewards",
+          "status": 503,
+          "url": "http://127.0.0.1:4173/api/v1/servers/local/management-bridge/players-known?offset=0&limit=50"
+        }
+      ]
+    }
+  ]
+}

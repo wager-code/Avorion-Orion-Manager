@@ -1,0 +1,74 @@
+{
+  "at": "2026-09-07T00:51:53.5101412+08:00",
+  "action": "query",
+  "beforePid": 13984,
+  "hello": {
+    "sampledAt": "2026-09-07T00:51:53.5217872+08:00",
+    "freshness": "live",
+    "data": {
+      "protocolVersion": 1,
+      "componentVersion": "0.1.0",
+      "requestId": "65ad4f0ddaec4666b2bc3f5bfcd74d6f",
+      "action": "hello",
+      "source": "avorion-lua-api",
+      "readOnly": true,
+      "capabilities": [
+        "bridge.hello",
+        "players.online"
+      ],
+      "serverSideOnly": true
+    }
+  },
+  "players": {
+    "sampledAt": "2026-09-07T00:51:53.5856897+08:00",
+    "freshness": "live",
+    "data": {
+      "protocolVersion": 1,
+      "componentVersion": "0.1.0",
+      "requestId": "a67a843beb08451484d7fa31d7dc84e0",
+      "action": "players",
+      "source": "avorion-lua-api",
+      "readOnly": true,
+      "total": 0,
+      "offset": 0,
+      "limit": 10,
+      "items": []
+    }
+  },
+  "after": {
+    "serverId": "local",
+    "name": "端到端验收服务器",
+    "lifecycle": "running",
+    "processId": 13984,
+    "version": null,
+    "galaxyName": "MachineAcceptance",
+    "uptimeSeconds": 9,
+    "onlinePlayers": null,
+    "maxPlayers": 4,
+    "rcon": {
+      "status": "connected",
+      "latencyMs": 0.6066,
+      "unavailableReason": null
+    },
+    "steamQuery": {
+      "status": "unknown",
+      "latencyMs": null,
+      "unavailableReason": "STEAM_QUERY_PROTOCOL_NOT_IMPLEMENTED"
+    },
+    "lastSave": {
+      "at": "2026-09-07T00:51:53.5902771+08:00",
+      "source": "filesystem",
+      "unavailableReason": null
+    },
+    "agent": {
+      "connected": true,
+      "lastHeartbeatAt": "2026-09-07T00:51:53.5888311+08:00"
+    },
+    "provenance": {
+      "sampledAt": "2026-09-07T00:51:53.5888311+08:00",
+      "source": "managed-profile+rcon",
+      "freshness": "live",
+      "unavailableReason": null
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "screenshots": [
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\inventory-catalog\\catalog-1920x1080.png",
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\inventory-catalog\\catalog-1440x900.png"
+  ],
+  "checks": [
+    {
+      "viewport": "1920x1080",
+      "initialCount": 58,
+      "loadedIconCount": 58,
+      "grantableCount": 11,
+      "turretCount": 19,
+      "miningSearchCount": 2,
+      "showsDefinitionTotal": true,
+      "showsIndexedIconTotal": true,
+      "showsConnectedSource": true,
+      "showsStoryBlocked": true,
+      "horizontalOverflow": false,
+      "clientWidth": 978,
+      "scrollWidth": 978,
+      "clientHeight": 818,
+      "scrollHeight": 818
+    },
+    {
+      "viewport": "1440x900",
+      "initialCount": 58,
+      "loadedIconCount": 58,
+      "grantableCount": 11,
+      "turretCount": 19,
+      "miningSearchCount": 2,
+      "showsDefinitionTotal": true,
+      "showsIndexedIconTotal": true,
+      "showsConnectedSource": true,
+      "showsStoryBlocked": true,
+      "horizontalOverflow": false,
+      "clientWidth": 978,
+      "scrollWidth": 978,
+      "clientHeight": 818,
+      "scrollHeight": 818
+    }
+  ],
+  "consoleErrors": [],
+  "pageErrors": [],
+  "failedResponses": [],
+  "failedCatalogResponses": []
+}

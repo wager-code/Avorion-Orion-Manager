@@ -1,0 +1,85 @@
+{
+  "test": "inventory-real-visual-qa",
+  "status": "BLOCKED",
+  "startedAt": "2026-09-12T01:10:11.442Z",
+  "screenshots": [
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\inventory-real\\inventory-1920x1080.png",
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\inventory-real\\inventory-1440x900.png",
+    "E:\\OrionAdmin\\frontend-prototype\\qa\\inventory-real\\inventory-1672x941.png"
+  ],
+  "checks": [
+    {
+      "viewport": "1920x1080",
+      "turretRows": 0,
+      "workbenchVisible": true,
+      "showsMiningLaser": false,
+      "showsChainGun": false,
+      "showsMaterial": false,
+      "showsTech": false,
+      "showsDps": false,
+      "showsRange": false,
+      "leaksUserdata": false,
+      "horizontalOverflow": false,
+      "clientWidth": 1598,
+      "scrollWidth": 1598,
+      "clientHeight": 624,
+      "scrollHeight": 624
+    },
+    {
+      "viewport": "1440x900",
+      "turretRows": 0,
+      "workbenchVisible": true,
+      "showsMiningLaser": false,
+      "showsChainGun": false,
+      "showsMaterial": false,
+      "showsTech": false,
+      "showsDps": false,
+      "showsRange": false,
+      "leaksUserdata": false,
+      "horizontalOverflow": false,
+      "clientWidth": 1122,
+      "scrollWidth": 1122,
+      "clientHeight": 624,
+      "scrollHeight": 624
+    },
+    {
+      "viewport": "1672x941",
+      "turretRows": 0,
+      "workbenchVisible": true,
+      "showsMiningLaser": false,
+      "showsChainGun": false,
+      "showsMaterial": false,
+      "showsTech": false,
+      "showsDps": false,
+      "showsRange": false,
+      "leaksUserdata": false,
+      "horizontalOverflow": false,
+      "clientWidth": 1354,
+      "scrollWidth": 1354,
+      "clientHeight": 624,
+      "scrollHeight": 624
+    }
+  ],
+  "consoleErrors": [
+    "1920x1080: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "1920x1080: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "1440x900: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "1440x900: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "1672x941: Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "1672x941: Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+  ],
+  "pageErrors": [],
+  "failedResponses": [
+    "1920x1080: 503 http://127.0.0.1:4173/api/v1/servers/local/players/1/assets",
+    "1920x1080: 503 http://127.0.0.1:4173/api/v1/servers/local/players/1/inventory?offset=0&limit=50",
+    "1440x900: 503 http://127.0.0.1:4173/api/v1/servers/local/players/1/assets",
+    "1440x900: 503 http://127.0.0.1:4173/api/v1/servers/local/players/1/inventory?offset=0&limit=50",
+    "1672x941: 503 http://127.0.0.1:4173/api/v1/servers/local/players/1/assets",
+    "1672x941: 503 http://127.0.0.1:4173/api/v1/servers/local/players/1/inventory?offset=0&limit=50"
+  ],
+  "lastCompletedStep": "inventory workbench rendered",
+  "failedStep": "real inventory API",
+  "reason": "SERVER_NOT_RUNNING: disposable Avorion + OrionAdminBridge is not running",
+  "finishedAt": "2026-09-12T01:10:18.369Z",
+  "durationMs": 6927
+}

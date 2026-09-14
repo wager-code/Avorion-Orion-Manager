@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <RootNamespace>AvorionAdmin.Api</RootNamespace>
+    <NoWarn>$(NoWarn);AD0001;CS8632</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AvorionAdmin.Core\AvorionAdmin.Core.csproj" />
+    <ProjectReference Include="..\AvorionAdmin.Agent\AvorionAdmin.Agent.csproj" />
+  </ItemGroup>
+</Project>

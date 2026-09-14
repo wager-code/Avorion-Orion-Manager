@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AvorionAdmin.Tests</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\AvorionAdmin.Core\AvorionAdmin.Core.csproj" />
+    <ProjectReference Include="..\..\src\AvorionAdmin.Agent\AvorionAdmin.Agent.csproj" />
+    <ProjectReference Include="..\AvorionAdmin.FakeServer\AvorionAdmin.FakeServer.csproj" ReferenceOutputAssembly="false" />
+    <None Include="..\AvorionAdmin.FakeServer\bin\$(Configuration)\net8.0\AvorionServer.dll"
+          Link="AvorionServer.dll"
+          CopyToOutputDirectory="PreserveNewest" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+</Project>

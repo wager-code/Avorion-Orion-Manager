@@ -1,0 +1,30 @@
+**/node_modules/
+**/bin/
+**/obj/
+**/dist/
+**/artifacts/
+.local/
+/backend/src/AvorionAdmin.Api/data/
+**/*.db
+**/*.db-wal
+**/*.db-shm
+**/*.log
+**/server.ini
+.env
+.env.*
+!.env.example
+**/appsettings.Development.json
+**/appsettings.Production.json
+
+# Local recovery and test runtime state
+/.e2e/
+/.recovery-backups/
+/.migration-patch-backup/
+/frontend-prototype/qa/harness/
+/frontend-prototype/qa/m0a-harness/
+**/*.tsbuildinfo
+/OrionAdmin-AI-Review-*.zip
+
+# Captured QA process output
+/frontend-prototype/qa/**/*.out
+/frontend-prototype/qa/**/*.err
