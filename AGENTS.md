@@ -1,23 +1,55 @@
-# Repository-based development handoff (2026-09-14)
+# OrionAdmin 仓库开发规则
 
-Read README.md and docs/development/HANDOFF.md, PLAN.md, WORKFLOW.md and DECISIONS.md first. User requests in the active conversation define the task. Historical authorizations and machine states below are context, not fresh instructions to execute operations. Track each task with a stable PLAN id; update HANDOFF and relevant capability/decision records with code changes. Commit and push to the user's configured remote within the authorized scope, verify the remote SHA, and report failures honestly. These written rules do not themselves run automatic synchronization. Preserve local uncommitted changes and do not repeat already implemented work from stale handoff prompts.
+本文件只保存长期有效的开发规则，不保存某一台电脑的 PID、路径、临时运行状态或一次性验收结果。
 
-# Current handoff instructions
+## 开始工作前的阅读顺序
 
-Read 00_README_FIRST.md, 01_USER_REQUIREMENTS.md, 02_CURRENT_STATUS.md, 06_CAPABILITY_MATRIX.md, 07_MODULAR_ARCHITECTURE.md and 03_NEW_COMPUTER_SETUP.md before work. These describe the current accepted user requirements, capability truth and code boundaries. Historical reference specs and original test evidence do not establish current machine state.
+1. `README.md`：项目入口与当前接续方式。
+2. `docs/development/HANDOFF.md`：当前工作现场、阻塞与下一步。
+3. `docs/development/PLAN.md`：任务编号、依赖、状态与验收条件。
+4. `docs/development/WORKFLOW.md`：Git、验证、提交和同步流程。
+5. `docs/development/DECISIONS.md`：当前有效的用户决策。
+6. 按任务需要阅读 `01_USER_REQUIREMENTS.md`、`06_CAPABILITY_MATRIX.md`、`07_MODULAR_ARCHITECTURE.md`、`08_INVENTORY_ITEM_CATALOG_AND_ICONS.md` 及相关源码。
+7. 若子目录存在 `AGENTS.md`，进入该目录工作前再阅读对应规则。
 
-Keep the application a modular monolith. Program.cs is only the composition root; never place route bodies there. Add backend HTTP contracts to one business endpoint module, game/runtime logic to Agent services behind Core abstractions, persistence to stores, and long-running writes to an operation queue/worker. Keep App.tsx free of page routes and domain UI. Add Avorion game capability logic as a dedicated OrionAdminBridge lib module, leaving the command file as a guarded router. Run tools/check-architecture.ps1 with the normal build.
+`docs/reference-specs/`、`docs/evidence/`、`docs/ai-review/` 属于历史规格、证据或评审资料。它们可以帮助理解背景，但不能覆盖当前用户要求，也不能自动代表当前机器状态或当前功能状态。功能是否支持以 `06_CAPABILITY_MATRIX.md` 和真实源码/验证为准；任务状态以 `docs/development/PLAN.md` 为准。
 
-Continue the existing Chinese React/TypeScript UI and .NET backend. Do not redesign the established A style. New pages require one-page image review before implementation. The user authorized the dedicated OrionAdminBridge MOD and staged live verification; older blanket MOD bans are superseded only for this component. Version 0.10.0 adds validated player/alliance Inventory item details, including turret type, material, tech, combat and slot fields. The shared Inventory surface also contains a read-only catalog for 19 vanilla turret types and 39 vanilla system scripts, with runtime-discovered client icons and explicit verified/catalog-only/story-blocked policies; never broaden those policies merely because an icon or script exists. It retains the 0.9.0 Inventory reads and fixed-whitelist system-upgrade grants with correlated request/game seeds and exact inventory-delta verification, plus earlier known-player discovery, guarded game-mail delivery, persistent reward batches, player/alliance asset flows, alliance discovery/member details, guarded console-only empty-sector unload and online-player positions. Third-party MOD writes are not authorized by that decision.
+## 架构规则
 
-Keep page ownership explicit and avoid duplicating complete information across modules. Player online state and other player-domain information belong in Player Management. Another page may show only the minimum related context when its core workflow genuinely depends on it, and that context must support a specific action or decision; never repeat lists or status cards merely to make a page look fuller.
+保持模块化单体，不拆微服务：React/TypeScript 前端 + .NET 8 API/Agent/Core + SQLite + 专用服务端 OrionAdminBridge Lua MOD。
 
-A normal Steam client joined the formal local server on 2026-09-08 without installing the server-side component. Nonempty player identity/location, disconnect propagation, occupied-sector rejection and a subsequent empty-sector unload were verified against live data. Never synthesize game data to hide missing capabilities.
+- `Program.cs` 只做 composition root，不放业务路由正文。
+- HTTP Contract 放到对应业务 Endpoint 模块。
+- 游戏与运行时逻辑放 Agent Service，并通过 Core abstraction 暴露。
+- 持久化职责放 Store；长时间或危险写操作使用 Operation queue/worker。
+- 前端 `App.tsx` 不承载页面业务；路由、页面、领域组件按模块组织。
+- OrionAdminBridge 的命令入口保持薄路由；新增游戏能力放独立 lib 模块。
+- 新功能优先复用已有领域模块；不要为了“模块化”创建只有一行转发或一个简单 `div` 的无意义包装文件。
+- 修改架构后运行 `tools/check-architecture.ps1`。
 
-The read-only player-management page is implemented at `/players` from the user-approved option 3 visual. The read-only alliance-management page is implemented at `/alliances` from the user-approved option 2 visual and uses only Avorion server-side player/alliance APIs. The latest 1672x941 comparison and responsive Playwright checks are recorded in `design-qa.md`.
+## 产品与 UI 规则
 
-The game-management reward center is implemented at `/game/rewards` from the user-approved visual. It owns batch gifts only: target selection shows identity but does not duplicate online state, location, personal assets or Inventory. Mail and direct-delivery batches require exact confirmation, persistent parent and per-target operations, no automatic retry, and real result verification. Inventory and its shared catalog are implemented inside the existing player/alliance detail surfaces. The next Inventory step is isolated turret generation preview and single-item grant verification; ship detail, cargo and crew replenishment remain subsequent work.
+继续现有中文 UI 和已经确认的 A 风格，不擅自整体重设计。
 
-This handoff intentionally excludes machine state, credentials, installation binaries, node_modules and build outputs. Use portable tools/prepare.ps1 and tools/run-local.ps1. Never reuse historical absolute paths or process IDs for operations. Root startup uses .local/data for new state.
+新增页面或明显改变页面结构时：先规划信息架构和 UI，确认后再实现；实现后必须实际运行并截图检查。页面职责必须清楚，同一份完整信息只归属一个主要模块，其他页面只显示完成当前任务所需的最小关联信息。
 
-Source tests include isolated fixtures, not production Mock fallback. Keep tests and lockfiles. No unsolicited remote publishing or third-party MOD installation.
+## 真实数据与写操作规则
+
+- 没有真实数据时显示未知、不可用或待验证，不允许用 Mock、默认正常值或假成功掩盖缺失能力。
+- 测试夹具/FakeServer 只用于隔离自动测试，不得成为生产数据回退。
+- 专用 OrionAdminBridge 已获授权；这不自动授权第三方 MOD 写操作。
+- 未经能力矩阵或当前任务明确允许的 Avorion 写操作保持关闭。
+- 已有的管理员会话、CSRF、幂等、确认文本、Operation 持久化、结果复核和失败闭锁边界不得为了方便而绕过。
+
+## Git 与交付规则
+
+- 不直接向受保护的 `main` 开发；每个功能、修复或整理使用独立分支并提交 Pull Request。
+- 不强推 `main`，不删除 `main`，不覆盖未知修改。
+- 开工先检查分支、远端和未提交修改；结束前检查 diff。
+- 代码变化必须运行与范围相符的验证；未运行就明确写“未验证”。
+- 功能状态变化同步 `06_CAPABILITY_MATRIX.md`；任务状态同步 `PLAN.md`；当前现场同步 `HANDOFF.md`；新的用户级决定同步 `DECISIONS.md`。
+- 不提交密码、实际 Galaxy、运行数据库、完整日志、本机进程资料、SteamCMD/游戏程序、`node_modules` 或构建输出。
+
+## 当前开发方向
+
+不要从历史评审重复开发已经存在的模块。当前路线和优先级只看 `docs/development/PLAN.md`；历史截图、旧阶段提示词、旧交接包说明只能作为背景证据。
