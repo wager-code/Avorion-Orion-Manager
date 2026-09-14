@@ -2,36 +2,39 @@
 
 React / TypeScript 前端、.NET 8 API 与 Agent、SQLite、专用服务端 Lua MOD。保持模块化单体。
 
-仓库：[wager-code/Avorion-Orion-Manager](https://github.com/wager-code/Avorion-Orion-Manager)（公开仓库）。主分支：main。
+仓库：[wager-code/Avorion-Orion-Manager](https://github.com/wager-code/Avorion-Orion-Manager)（公开仓库）。主分支：`main`。
 
 ## 开发接续入口
 
-换电脑或更换 AI 时，先阅读以下文件，不依赖聊天记录恢复进度：
+换电脑或更换 AI 时，只按下面这套当前入口恢复进度，不依赖聊天记录：
 
 1. [当前交接](docs/development/HANDOFF.md)：当前任务、完成情况、阻塞、下一步。
 2. [步骤清单](docs/development/PLAN.md)：稳定任务编号、状态和验收条件。
-3. [协作与同步流程](docs/development/WORKFLOW.md)：每次修改如何记录、验证、提交和上传。
-4. [决策记录](docs/development/DECISIONS.md)：为什么采用当前方案。
+3. [协作与同步流程](docs/development/WORKFLOW.md)：分支、验证、提交和 Pull Request 流程。
+4. [决策记录](docs/development/DECISIONS.md)：当前有效的用户级决定。
 5. [用户需求](01_USER_REQUIREMENTS.md)、[能力矩阵](06_CAPABILITY_MATRIX.md)、[架构](07_MODULAR_ARCHITECTURE.md)。
-6. 根目录及相关子目录的 AGENTS.md，然后阅读本次任务相关源码。
+6. 根目录及相关子目录的 `AGENTS.md`，然后阅读本次任务相关源码。
 
-用户当前明确要求优先。历史文档描述的授权、路径、PID、运行状态和验证结果不能自动变成本次执行指令或当前机器事实。新任务状态在 PLAN.md 维护；旧状态文档和评审报告保留为历史来源。
+用户当前明确要求优先。`docs/reference-specs/`、`docs/evidence/`、`docs/ai-review/` 属于历史规格、证据或评审资料，可以用于追溯，但不能覆盖当前任务、当前能力矩阵或当前机器事实。
 
 ## 运行与验证
 
-见 [环境准备](03_NEW_COMPUTER_SETUP.md)。准备入口为 01-prepare.cmd，启动入口为 02-start.cmd；游戏运行环境需单独核实。当前接续整理未运行构建或游戏验收。
+见 [环境准备](03_NEW_COMPUTER_SETUP.md)。准备入口为 `01-prepare.cmd`，启动入口为 `02-start.cmd`；游戏运行环境需单独核实。
 
 ## 当前功能范围
 
-源码已有服务器管理八个子页面、玩家/联盟管理、奖励中心、Inventory 读取和受限系统插件发放。普通炮塔发放、舰船、活动和星区建设的后续阶段见步骤清单。源码存在不等于当前机器已验收。
+源码已有服务器管理八个子页面、玩家/联盟管理、奖励中心、Inventory 读取和受限系统插件发放。普通炮塔发放、舰船、活动和星区建设的后续阶段见 `PLAN.md`。源码存在不等于当前机器已验收。
 
 ## 版本管理
 
-代码、计划、交接和验证摘要一起提交到 Git，并推送到选定的远端仓库。Git 提交保存在本机，推送成功后才完成远端同步。游戏存档、数据库、密码和本机运行数据单独备份，不作为开发进度上传。
+`main` 是受保护的稳定分支。功能、修复和仓库整理都从独立分支开始，通过 Pull Request 合并；不直接在 `main` 开发，不强推覆盖历史。
 
-历史交接包的 MANIFEST.sha256 仅用于原始交接版本；后续版本以 Git 提交和文件差异为准。
+代码、计划、交接和验证摘要随 Git 提交同步。游戏存档、数据库、密码、本机运行数据和完整日志不作为源码提交。
+
+历史 ZIP 交接包的清单、恢复提示和一次性补丁已由 Git 历史取代；需要追溯旧记录时使用 Git 提交历史，不在当前根目录维护第二套接续体系。
 
 ## 当前接续状态
 
-首次源码与规划上传（SYNC-02）已完成；完整基线含 295 个文件，远端与本地文件树一致。
-下一步是 SYNC-03 / M0-01：新环境准备与当前版本构建验证。具体证据和网络限制见 [当前交接](docs/development/HANDOFF.md)。
+首次源码与规划上传（SYNC-02）已完成。2026-09-15 开始 M0-07 仓库卫生清理：收敛接续入口、删除明确过期的迁移文件和重复制品，不修改业务功能。
+
+下一阶段仍以 `PLAN.md` 为准：完成当前基线构建/自动测试，并逐步建立 CI 后再继续新增大型游戏能力。

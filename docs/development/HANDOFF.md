@@ -1,50 +1,51 @@
 # 当前交接
 
-最后更新：2026-09-14。
-已完成：SYNC-01（交接体系）、SYNC-02（首次源码与规划上传）。
-下一步：SYNC-03 / M0-01，完成新环境准备和当前版本构建验证。
-
-仓库：https://github.com/wager-code/Avorion-Orion-Manager（公开）。
-分支：main。首次完整源码提交：0a816989476429133e19125decfe47c3fa3be720。
-本次交接记录随随后文档提交同步；最新版本用 git log -1 和远端 refs/heads/main 核对，不将上面的基线 SHA 当成永远最新版本。
+最后更新：2026-09-15。
+当前任务：M0-07（仓库卫生清理与接续收敛）。
+工作分支：`cleanup/repository-hygiene-2026-09-15`。
+目标分支：`main`。
 
 ## 用户当前目标
 
-源码、开发规划、每一步的状态一起保存到 GitHub。经常换电脑和 AI，因此仓库文件必须足以恢复上下文。每次可交接修改都更新状态与交接后再同步远端。
+保持 GitHub 公开，让其他人可以查看、Fork 和提交 Pull Request，但不直接修改 `main`。项目主要由 AI/Codex 开发，因此 `main` 作为稳定分支；每次功能、修复和整理使用独立分支，通过 PR 合并。
 
-## 本次完成及证据
+用户同时要求对仓库做完整评估，删除重复、多余、过期文件，避免 AI 长期开发后出现多套交接资料和重复证据。
 
-- 完整上传 295 个跟踪文件：业务源码、管理 MOD、测试、锁文件、设计参考、原版脚本文档和开发资料。
-- 首次完整上传的远端 Git 树为 be4b504ebd4babe35fd3122f1debd64cf6204c65，与本地导入版本完全相同。
-- 54 个不同的二进制对象均逐个校验 SHA；一个大图传输截断被哈希检查发现，重新分段读取并上传后通过。
-- 分批源码树审核通过后才更新主分支；已通过 GitHub 接口直接读回 main 上的 PLAN.md。
-- 因本机 Git 未登录，使用已连接 GitHub 账号完成上传。Git 整包下载出现连接失败/中断；通过 GitHub Git 数据接口读回少量提交元数据，精确复原并核对提交 SHA，本地 main 与发布基线对齐。
-- 原本地导入提交保留在 local-import-baseline 分支；没有强推或删除原提交。
-- Git fsck --full --no-dangling 通过。独立本地克隆的 295 个文件及提交/树 SHA 一致，tools/check-architecture.ps1 通过。
-- 本地克隆通过不等于已在新电脑从 GitHub 下载并安装运行；这部分仍属于 SYNC-03。
+## M0-07 本次已做
+
+- 建立独立清理分支，没有直接修改 `main`。
+- 重写根目录 `AGENTS.md`，只保留长期开发规则和一套当前阅读入口。
+- 更新 `README.md`、`WORKFLOW.md`、`DECISIONS.md`、`PLAN.md`，统一分支/PR 开发方式和当前文档主入口。
+- 删除旧 ZIP 交接入口、旧状态交接、旧 AI 接续提示、旧迁移验证记录、旧 MOD 阶段说明、旧 `MANIFEST.sha256`。
+- 删除 `MissingModPatch/` 一次性迁移补丁目录。
+- 删除 `docs/ai-review/06_PROMPT_FOR_OTHER_AI.md`，避免旧提示词继续影响当前 AI。
+- 删除一张已确认与 `docs/ai-review/screenshots/current/04-server-update-1920x1080.png` 字节完全相同的重复 QA 截图。
+
+被删除文件仍存在于 Git 历史，需要追溯时可恢复；本轮没有删除业务源码、测试源码、能力矩阵、架构、API 合同、官方 Avorion 文档 ZIP、UI 母版或 OrionAdminBridge 正式源码。
+
+## 本轮没有做
+
+- 没有修改 React、C#、Lua 业务逻辑。
+- 没有运行 Avorion 游戏服或执行任何游戏写操作。
+- 没有把旧历史评审目录整包删除；它仍保留为历史快照，后续再按价值清理。
+- 没有开始拆 `ManagementBridge.cs`、`SqliteStore.cs`、`ProvisioningEndpoints.cs`、全局 `styles.css` 等大文件；这些应放在后续独立 PR 中。
+
+## 验证原则
+
+本次属于文档/仓库结构清理，不应把历史旧机器的构建结果冒充当前验证。合并前需要：
+
+1. 比较 `main...cleanup/repository-hygiene-2026-09-15` 的文件差异。
+2. 检查当前 README/AGENTS/PLAN/HANDOFF/WORKFLOW/DECISIONS 不再引用已删除的当前入口文件。
+3. 确认删除范围没有业务源码和正式测试源码。
+4. 创建 Pull Request，由用户确认后再合并。
 
 ## 当前代码事实
 
 - React/TypeScript、.NET 8 API/Agent/Core、SQLite、Lua OrionAdminBridge；保持模块化单体。
-- 玩家和联盟页已共用 features/inventory/InventoryWorkbench.tsx。
-- features/server-update 已存在，旧评审的“开始拆分更新页”不可直接照搬。
-- 旧 AI 接续提示已替换；历史文档的 MOD 0.10.0 和游戏实测尚未在本次复验。
-- 普通炮塔发放、舰船、活动和星区建设仍按 PLAN 逐步推进，规划不等于已实现。
+- 玩家和联盟页共用 `features/inventory/InventoryWorkbench.tsx`。
+- `features/server-update` 已经存在，旧评审中“更新页尚未拆分”的描述属于历史快照。
+- 普通炮塔生成/发放、舰船、活动和星区建设仍按 PLAN 分阶段推进，规划不等于已实现。
 
-## 尚未完成
+## 清理之后的下一步
 
-- 新电脑从 GitHub 完整克隆、依赖安装、后端构建/测试、前端类型检查/构建和页面验收。
-- CI / 自动检查配置（SYNC-04）；上传规则本身不会运行后台自动提交。
-- M0-06：核对其他旧状态文档、子目录规则与当前代码之间的差异。
-- 原代码 git diff --check 存在缩进/尾随空白提示；本次导入保留原业务代码，未把格式检查当成通过，也未进行无关格式重写。
-
-## 本机与上传范围
-
-数据库、Galaxy、密码、运行日志、恢复备份和测试运行状态不属于源码同步范围。已检查候选文件及常见凭据模式；唯一模式命中是隔离测试密码夹具。
-本机命令行 Git 尚未完成 GitHub 写入登录；后续上传可使用已连接的 GitHub 工具，也可在用户完成命令行登录后使用 git push。任何方式都须核对远端提交，失败时如实说明。
-
-## 下一位 AI 的第一步
-
-先读 README、PLAN 和本文件，核对当前分支、未提交修改和远端 SHA。保留用户修改，不覆盖已有提交。
-优先完成 SYNC-03 / M0-01；保持现有中文 UI 与模块边界。旧机器的路径、PID、运行状态和测试结果不是当前机器事实。
-每次结束记录任务编号、改动、验证结果、阻塞、下一步，并将代码与文档一同同步。
+M0-07 合并后，优先完成 M0-01 / SYNC-03：在当前环境重新执行后端构建、自动测试、前端类型检查和生产构建；随后完成 SYNC-04 GitHub CI。之后再进入前端去重复、后端大文件拆分和新的游戏功能。
