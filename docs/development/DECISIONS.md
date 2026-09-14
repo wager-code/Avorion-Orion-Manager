@@ -20,4 +20,4 @@
 来源：用户提供仓库 URL 和仓库截图，并指定“这个”作为源码及开发进度上传位置。
 决定：https://github.com/wager-code/Avorion-Orion-Manager；main 分支。
 已核对：GitHub API 返回 visibility=public；仓库初始为空，当前账户具有 push 权限。
-影响：保留现有公开设置；提交使用 GitHub noreply 邮箱，排除本机数据库、日志、恢复备份与测试运行状态。代码、规划、交接一起提交，推送后核对远端。
+影响：保留现有公开设置；本地初始提交使用 GitHub noreply 邮箱，GitHub 接口提交作者由已连接账号生成，排除本机数据库、日志、恢复备份与测试运行状态。代码、规划、交接一起提交，推送后核对远端。
