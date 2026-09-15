@@ -29,7 +29,7 @@
 | M0-07 | 仓库卫生清理与接续收敛 | 已完成 | PR #1 已合并；移除过期交接包、一次性补丁、旧提示词和明确重复截图，并收敛当前文档入口；未修改业务代码 |
 | M0-08 | 前端更新模块去重复 | 已完成 | PR #2 已合并且 CI 通过；统一更新页类型、错误 helper 与 Operation storage 归属，不改变 UI 或 API 行为 |
 | M0-09 | 前端样式分区整理 | 已完成 | PR #3 已合并且 CI 通过；185209-byte 全局 CSS 按原顺序拆为 8 个区块，拆分前后重组 SHA-256 一致，未改变样式声明或级联顺序 |
-| M0-10 | 后端大文件职责拆分 | 进行中 | 分批拆 `Services.cs` / `ApiModels.cs`、`ProvisioningEndpoints.cs`、`SqliteStore.cs`、`ManagementBridge.cs`；当前分支先按职责拆 Core contracts，只移动声明、不改 public contract 或业务行为 |
+| M0-10 | 后端大文件职责拆分 | 进行中 | PR #4 先按职责拆 `Services.cs` / `ApiModels.cs` 且首轮 CI 通过；后续继续独立 PR 拆 `ProvisioningEndpoints.cs`、`SqliteStore.cs`、`ManagementBridge.cs`，每轮只整理职责、不混入新功能 |
 | M0-11 | 测试结构整理 | 待开始 | 拆分超大测试入口；保留 FakeServer、真实数据边界和现有覆盖，不用整理名义删除测试 |
 
 ## M1：普通炮塔预览和单件发放
