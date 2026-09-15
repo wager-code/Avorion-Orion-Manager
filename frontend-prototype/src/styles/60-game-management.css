@@ -1,0 +1,134 @@
+/* Game management — approved reward center */
+.game-page { min-width: 0; }
+.game-heading { display: flex; min-height: 90px; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.game-heading h1 { margin: 0; color: var(--text-strong); font-size: 29px; font-weight: 760; letter-spacing: -0.025em; line-height: 1.25; }
+.game-heading p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+.game-heading > .status-pill { margin-top: 5px; }
+.game-tabs { display: flex; min-height: 52px; align-items: stretch; gap: 30px; border-bottom: 1px solid #dce4ed; }
+.game-tabs button { position: relative; border: 0; background: transparent; color: #48586f; cursor: pointer; padding: 0; font-size: 14px; font-weight: 650; }
+.game-tabs button:hover { color: var(--primary); }
+.game-tabs .game-tabs__active { color: var(--primary); }
+.game-tabs .game-tabs__active::after { position: absolute; right: 0; bottom: -1px; left: 0; height: 3px; background: var(--primary); content: ""; }
+.game-error { display: flex; align-items: center; gap: 9px; margin-top: 14px; border-color: #f3d1ad; background: #fff9f2; padding: 12px 14px; color: #b66b17; font-size: 12px; }
+.game-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin-top: 20px; }
+.game-summary .card { display: flex; min-height: 100px; align-items: center; gap: 14px; padding: 17px 20px; }
+.game-summary .card > span { display: grid; width: 46px; height: 46px; flex: 0 0 46px; place-items: center; border-radius: 11px; background: #edf5ff; color: #1677ef; }
+.game-summary .card:nth-child(2) > span { background: #f2efff; color: #735be5; }
+.game-summary .card:nth-child(3) > span { background: #eef8f3; color: #1ba866; }
+.game-summary .card:nth-child(4) > span { background: #fff5e9; color: #e58b1a; }
+.game-summary .card div { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.game-summary small { color: #6c7a8d; font-size: 12px; }
+.game-summary strong { color: #111827; font-size: 22px; font-weight: 750; }
+.reward-workspace { display: grid; grid-template-columns: minmax(0, 1.85fr) minmax(330px, 0.95fr); align-items: start; gap: 18px; margin-top: 18px; }
+.reward-builder { min-width: 0; padding: 22px; }
+.reward-builder__heading,
+.reward-history__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.reward-builder__heading h2,
+.reward-history__heading h2 { margin: 0; color: #152033; font-size: 20px; font-weight: 730; }
+.reward-builder__heading p,
+.reward-history__heading p { margin: 5px 0 0; color: #758398; font-size: 11px; }
+.reward-mode { display: flex; align-items: center; gap: 8px; margin-top: 15px; border-bottom: 1px solid #e4eaf2; padding-bottom: 15px; }
+.reward-mode button,
+.reward-mode > span { display: inline-flex; min-height: 34px; align-items: center; gap: 6px; border: 1px solid #d8e1ed; border-radius: 8px; background: #fff; padding: 0 13px; color: #526177; font-size: 12px; font-weight: 650; }
+.reward-mode button { cursor: pointer; }
+.reward-mode .reward-mode__active { border-color: #2280f3; background: #f4f9ff; color: #1270e8; }
+.reward-mode > span { cursor: default; }
+.reward-section { margin-top: 18px; }
+.reward-section__title { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.reward-section__title strong { color: #253247; font-size: 12px; }
+.reward-section__title small { color: #8090a3; font-size: 10px; }
+.reward-target-box { position: relative; margin-top: 10px; border: 1px solid #dce5f0; border-radius: 10px; background: #fbfcfe; padding: 11px; }
+.reward-search { display: flex; height: 34px; align-items: center; gap: 7px; color: #8a98a9; }
+.reward-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #29384d; font-size: 11px; }
+.reward-candidates { position: absolute; top: 45px; right: 10px; left: 10px; z-index: 5; display: grid; border: 1px solid #dce5ef; border-radius: 8px; background: #fff; box-shadow: 0 9px 24px rgba(25, 45, 72, 0.14); padding: 5px; }
+.reward-candidates button { display: flex; min-height: 34px; align-items: center; gap: 7px; border: 0; border-radius: 6px; background: transparent; padding: 0 9px; color: #334155; cursor: pointer; text-align: left; }
+.reward-candidates button:hover { background: #eef6ff; color: #1677ef; }
+.reward-candidates small { margin-left: auto; color: #8896a8; }
+.reward-targets { display: flex; min-height: 32px; align-items: center; flex-wrap: wrap; gap: 7px; }
+.reward-targets > span { display: inline-flex; min-height: 28px; align-items: center; gap: 5px; border-radius: 7px; background: #eaf3ff; padding: 0 7px 0 10px; color: #176bcf; font-size: 11px; font-weight: 650; }
+.reward-targets small { color: #6992c4; font-weight: 500; }
+.reward-targets button { border: 0; background: transparent; color: #5c87bc; cursor: pointer; padding: 0 2px; font-size: 16px; }
+.reward-targets em { color: #8795a6; font-size: 10px; font-style: normal; line-height: 1.5; }
+.reward-mail-fields { display: grid; grid-template-columns: minmax(180px, 0.75fr) minmax(0, 1.45fr); gap: 10px; margin-top: 10px; }
+.reward-mail-fields label { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.reward-mail-fields span { color: #68778c; font-size: 10px; }
+.reward-mail-fields input,
+.reward-add-asset select,
+.reward-add-asset input { width: 100%; height: 36px; min-width: 0; border: 1px solid #d7e1ed; border-radius: 8px; outline: 0; background: #fff; padding: 0 10px; color: #2c3a4e; font-size: 11px; }
+.reward-mail-fields input:focus,
+.reward-add-asset select:focus,
+.reward-add-asset input:focus { border-color: #83b8fa; box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.1); }
+.reward-add-asset { display: grid; grid-template-columns: minmax(130px, 0.65fr) minmax(120px, 0.65fr) auto; gap: 8px; margin-top: 10px; }
+.reward-assets-table { margin-top: 10px; overflow: hidden; border: 1px solid #dce4ee; border-radius: 9px; }
+.reward-assets-table > div { display: grid; min-height: 42px; grid-template-columns: 1fr 1fr 80px; align-items: center; border-top: 1px solid #e7edf4; padding: 0 11px; font-size: 11px; }
+.reward-assets-table > div:first-child { min-height: 38px; border-top: 0; background: #f5f8fc; color: #718096; }
+.reward-assets-table strong { color: #263449; }
+.reward-assets-table b { color: #086de6; }
+.reward-assets-table button { display: inline-flex; align-items: center; gap: 4px; justify-self: end; border: 0; background: transparent; color: #dc4a4a; cursor: pointer; font-size: 10px; }
+.reward-assets-table > p { margin: 0; padding: 22px; color: #8290a2; font-size: 11px; text-align: center; }
+.reward-operation { display: flex; align-items: center; gap: 8px; margin-top: 14px; border-radius: 8px; background: #eef5ff; padding: 10px 12px; color: #1769ca; font-size: 10px; }
+.reward-operation[data-status="succeeded"] { background: #edf9f3; color: #17804a; }
+.reward-operation[data-status="failed"] { background: #fff1f1; color: #b83d3d; }
+.reward-operation code { margin-left: auto; color: inherit; font-size: 9px; opacity: 0.75; }
+.reward-submit-bar { display: flex; min-height: 60px; align-items: center; justify-content: space-between; gap: 15px; margin-top: 15px; border-radius: 9px; background: #fff6e7; padding: 10px 12px; }
+.reward-submit-bar > div { display: flex; align-items: center; gap: 7px; color: #a96a18; font-size: 10px; }
+.reward-submit-bar .button { flex: 0 0 auto; }
+.reward-history { min-width: 0; padding: 22px; }
+.reward-history__list { display: grid; gap: 10px; margin-top: 15px; }
+.reward-history article { border: 1px solid #dfe7f0; border-radius: 9px; padding: 13px; }
+.reward-history article header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.reward-history article strong { color: #233146; font-size: 12px; }
+.reward-history article time { color: #8b98a9; font-size: 9px; }
+.reward-history article p { margin: 7px 0 0; color: #66758a; font-size: 10px; }
+.reward-history__track { height: 4px; margin-top: 12px; overflow: hidden; border-radius: 4px; background: #e8edf3; }
+.reward-history__track i { display: block; height: 100%; border-radius: inherit; background: #24b66c; }
+.reward-history article footer { display: flex; gap: 10px; margin-top: 8px; color: #6c7b8e; font-size: 10px; }
+.reward-history__success { color: #17834b; }
+.reward-history__failed { color: #d44747; }
+.reward-history__empty { display: flex; min-height: 180px; align-items: center; justify-content: center; flex-direction: column; color: #8795a6; text-align: center; }
+.reward-history__empty strong { margin-top: 8px; font-size: 12px; }
+.reward-history__empty span { margin-top: 5px; font-size: 10px; }
+.reward-boundary { margin-top: 15px; border-top: 1px solid #e3e9f1; padding-top: 14px; }
+.reward-boundary strong { color: #5d6c80; font-size: 10px; }
+.reward-boundary p { margin: 5px 0 0; color: #77869a; font-size: 10px; line-height: 1.55; }
+
+@media (max-width: 1220px) {
+  .game-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .reward-workspace { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .game-heading { min-height: 108px; padding-left: 58px; }
+}
+
+@media (max-width: 640px) {
+  .game-heading { min-height: 132px; flex-direction: column; gap: 12px; }
+  .game-heading h1 { font-size: 24px; }
+  .game-tabs { gap: 18px; overflow-x: auto; }
+  .game-tabs button { flex: 0 0 auto; }
+  .game-summary { grid-template-columns: 1fr; gap: 10px; }
+  .game-summary .card { min-height: 76px; }
+  .reward-builder,
+  .reward-history { padding: 16px; }
+  .reward-section__title { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .reward-mode { align-items: stretch; flex-direction: column; }
+  .reward-mail-fields,
+  .reward-add-asset { grid-template-columns: 1fr; }
+  .reward-assets-table > div { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 64px; }
+  .reward-submit-bar { align-items: stretch; flex-direction: column; }
+  .reward-submit-bar .button { width: 100%; }
+  .reward-operation { align-items: flex-start; flex-wrap: wrap; }
+  .reward-operation code { width: 100%; margin-left: 25px; overflow-wrap: anywhere; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
