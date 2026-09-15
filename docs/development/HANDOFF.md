@@ -4,7 +4,7 @@
 当前任务：M0-10（后端大文件职责拆分）。
 工作分支：`cleanup/core-contracts-2026-09-15`。
 目标分支：`main`。
-当前 Pull Request：待创建。
+当前 Pull Request：#4。
 
 ## 用户当前目标
 
@@ -20,7 +20,7 @@
 
 ## M0-10 当前改动
 
-本分支只处理 Core 中两个“万能文件”的职责归类，不改变 public type 名称、命名空间、方法签名、记录字段或业务逻辑。
+PR #4 只处理 Core 中两个“万能文件”的职责归类，不改变 public type 名称、命名空间、方法签名、记录字段或业务逻辑。
 
 ### Abstractions
 
@@ -49,13 +49,13 @@
 
 ## 当前验证状态
 
-本轮业务逻辑未修改。Pull Request 创建后必须等待现有 CI 完整通过：架构检查、.NET 构建、后端验证、前端 TypeScript 类型检查、Vite 生产构建和 Sites wrapper 测试。
+PR #4 的首轮 CI 已完整通过：架构检查、.NET 构建、后端验证、前端 TypeScript 类型检查、Vite 生产构建和 Sites wrapper 测试均成功。随后仅同步了 PLAN/HANDOFF 文档，因此仍以当前 PR head 的最终 CI 结果作为合并依据。
 
-本轮没有修改 Lua MOD、数据库结构、API Contract、Avorion 游戏写操作、前端页面逻辑或视觉样式。
+本轮没有修改 C# 业务实现、Lua MOD、数据库结构、API Contract、Avorion 游戏写操作、前端页面逻辑或视觉样式。
 
 ## 后续清理顺序
 
-1. 当前 Core contracts 拆分通过 CI 并合并。
+1. PR #4 当前 head 的 CI 通过并合并。
 2. 单独拆 `ProvisioningEndpoints.cs`，只按子职责移动路由和 helper，不改变 URL/HTTP Contract。
 3. 单独拆 `SqliteStore.cs`，共享同一个 SQLite 数据库和现有 schema，不改持久化行为。
 4. 单独拆 `ManagementBridge.cs`，保持协议、MOD 版本兼容和现有验证逻辑不变。
