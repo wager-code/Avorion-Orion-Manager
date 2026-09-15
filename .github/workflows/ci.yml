@@ -62,6 +62,10 @@ jobs:
         shell: pwsh
         run: pnpm build
 
+      - name: Smoke-test API and frontend startup
+        shell: pwsh
+        run: ./tools/run-local.ps1 -ApiPort 5188 -WebPort 4273 -SmokeTest
+
       - name: Test Sites wrapper
         working-directory: frontend-prototype
         shell: pwsh
