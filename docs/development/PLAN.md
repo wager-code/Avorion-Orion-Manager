@@ -14,7 +14,7 @@
 | SYNC-01 | 建立 README、任务清单、交接和同步约定 | 已完成 | 当前接续入口已建立 |
 | SYNC-02 | 确定仓库并完成首次 Git 同步 | 已完成 | 首次完整提交已发布，远端与导入基线一致 |
 | SYNC-03 | 新目录克隆演练 | 已实现待验证 | 独立本地克隆曾验证一致；新环境依赖安装/构建仍待完成 |
-| SYNC-04 | 自动构建与检查 | 已完成 | PR #2 建立 GitHub Actions CI；PR #2、#3 已真实通过架构检查、.NET 构建、后端验证、前端类型检查、生产构建和 Sites 测试 |
+| SYNC-04 | 自动构建与检查 | 已完成 | PR #2 建立 GitHub Actions CI；PR #2、#3、#4 已真实通过架构检查、.NET 构建、后端验证、前端类型检查、生产构建和 Sites 测试 |
 
 ## M0：核实并稳定当前基线
 
@@ -29,7 +29,7 @@
 | M0-07 | 仓库卫生清理与接续收敛 | 已完成 | PR #1 已合并；移除过期交接包、一次性补丁、旧提示词和明确重复截图，并收敛当前文档入口；未修改业务代码 |
 | M0-08 | 前端更新模块去重复 | 已完成 | PR #2 已合并且 CI 通过；统一更新页类型、错误 helper 与 Operation storage 归属，不改变 UI 或 API 行为 |
 | M0-09 | 前端样式分区整理 | 已完成 | PR #3 已合并且 CI 通过；185209-byte 全局 CSS 按原顺序拆为 8 个区块，拆分前后重组 SHA-256 一致，未改变样式声明或级联顺序 |
-| M0-10 | 后端大文件职责拆分 | 进行中 | PR #4 先按职责拆 `Services.cs` / `ApiModels.cs` 且首轮 CI 通过；后续继续独立 PR 拆 `ProvisioningEndpoints.cs`、`SqliteStore.cs`、`ManagementBridge.cs`，每轮只整理职责、不混入新功能 |
+| M0-10 | 后端大文件职责拆分 | 进行中 | PR #4 已合并且 CI 通过，完成 `Services.cs` / `ApiModels.cs` 按职责拆分；PR #5 当前拆 `ProvisioningEndpoints.cs` 为更新环境、服务器配置、安装、文件系统 4 个职责文件，保持原路由注册顺序和 HTTP 行为；后续继续独立 PR 拆 `SqliteStore.cs`、`ManagementBridge.cs` |
 | M0-11 | 测试结构整理 | 待开始 | 拆分超大测试入口；保留 FakeServer、真实数据边界和现有覆盖，不用整理名义删除测试 |
 
 ## M1：普通炮塔预览和单件发放
