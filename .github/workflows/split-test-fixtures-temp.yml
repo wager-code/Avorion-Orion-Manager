@@ -1,0 +1,74 @@
+name: Temporary test fixture splitter
+
+on:
+  push:
+    branches:
+      - cleanup/test-structure-2026-09-15
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: cleanup/test-structure-2026-09-15
+          fetch-depth: 0
+
+      - name: Split fixture classes from Program
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("backend/tests/AvorionAdmin.Tests/Program.cs")
+          fixtures_path = path.with_name("TestFixtures.cs")
+          text = path.read_text(encoding="utf-8")
+
+          if fixtures_path.exists():
+              print("Test fixtures already split; nothing to do.")
+              raise SystemExit(0)
+
+          marker = "\nsealed class FixtureArchiveSource"
+          start = text.index(marker)
+          preamble_end = text.index("var failures =")
+          using_block = text[:preamble_end]
+          program_block = text[:start].rstrip() + "\n"
+          fixture_block = text[start + 1:]
+
+          if program_block.rstrip() + "\n\n" + fixture_block != text:
+              # Allow for the exact single blank line around the type boundary.
+              reconstructed = text[:start] + "\n" + fixture_block
+              if reconstructed != text:
+                  raise RuntimeError("Fixture split did not preserve the original class block")
+
+          expected = [
+              "FixtureArchiveSource",
+              "AcceptValveSignature",
+              "StaticManagedControl",
+              "StaticSteamQueryProbe",
+              "FixtureAvorionSteamCmdRunner",
+              "TransientLockAvorionSteamCmdRunner",
+          ]
+          for name in expected:
+              if f"class {name}" not in fixture_block:
+                  raise RuntimeError(f"Missing fixture class: {name}")
+
+          path.write_text(program_block, encoding="utf-8")
+          fixtures_path.write_text(using_block + fixture_block, encoding="utf-8")
+          print("Moved fixture/test-double classes out of Program.cs without rewriting class bodies.")
+
+      - name: Commit test fixture split
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/tests/AvorionAdmin.Tests/Program.cs backend/tests/AvorionAdmin.Tests/TestFixtures.cs
+          git commit -m "M0-11: move test fixtures out of Program"
+          git push origin HEAD:cleanup/test-structure-2026-09-15
