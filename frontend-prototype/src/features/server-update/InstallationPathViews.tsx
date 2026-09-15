@@ -1,15 +1,10 @@
 import { SquareTerminal, Circle, ArrowLeft, ArrowRight, Box, CheckCircle2, Download, FolderOpen, HardDrive, Info, LoaderCircle, ShieldCheck, AlertCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ServerDirectoryPicker } from "../../components/ServerDirectoryPicker";
-import { apiFetch, createIdempotencyKey } from "./serverUpdateApi";
+import { apiFetch, createIdempotencyKey } from "../../lib/api";
 import { Button, Card, StatusPill } from "../../components/ui";
-async function readApiError(response: Response) {
-  const body = await response.json().catch(() => null) as { error?: { message?: string } } | null;
-  return body?.error?.message || `请求失败（HTTP ${response.status}）`;
-}
-
 import type { AvorionServerInstallationResult, InstallOperation, SteamCmdInstallationResult } from "./types";
-import { isAvorionServerInstallationResult, isSteamCmdInstallationResult } from "./utils";
+import { isAvorionServerInstallationResult, isSteamCmdInstallationResult, readApiError } from "./utils";
 import { PathFlowHeading } from "./PathFlowHeading";
 import { SummaryItem } from "./UpdateSummaryComponents";
 

@@ -1,7 +1,7 @@
 import type { ServerStatus } from "../../types";
 import { MessageSquareText, Power, Play, Activity, AlertCircle, ArrowLeft, Box, CheckCircle2, Circle, Clock3, Database, Download, FileCheck2, FolderOpen, Info, LoaderCircle, RefreshCw, Search, ServerCog, Settings, ShieldCheck, SquareTerminal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { apiFetch, createIdempotencyKey } from "./serverUpdateApi";
+import { apiFetch, createIdempotencyKey } from "../../lib/api";
 import { Button, Card, StatusPill } from "../../components/ui";
 import type { UpdateEnvironmentCurrent, UpdateCheckResult, UpdateVerificationResult, UpdateRollbackPointResult, UpdateRollbackPointAvailability, UpdateInspectionOperation } from "./types";
 import { readStoredOperationId, activeOperationStorageKeys, storeOperationId } from "./operationStorage";

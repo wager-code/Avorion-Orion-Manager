@@ -1,7 +1,7 @@
 import { Minus, Plus, Play, ArrowLeft, ArrowRight, CheckCircle2, Circle, Database, FolderOpen, Gamepad2, Info, LoaderCircle, ServerCog, ShieldCheck, SquareTerminal, Box, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ServerDirectoryPicker } from "../../components/ServerDirectoryPicker";
-import { apiFetch, createIdempotencyKey } from "./serverUpdateApi";
+import { apiFetch, createIdempotencyKey } from "../../lib/api";
 import { Button, Card, StatusPill } from "../../components/ui";
 import type { ServerSetupDraftConfiguration, ServerSetupPreflightResult, ServerSetupApplicationOperation, ServerInitializationOperation, ServerInitializationResult, SetupStep } from "./types";
 import { clearStoredOperationId, activeOperationStorageKeys } from "./operationStorage";
