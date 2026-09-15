@@ -1,0 +1,182 @@
+name: Temporary Core contract splitter
+
+on:
+  push:
+    branches:
+      - cleanup/core-contracts-2026-09-15
+    paths:
+      - .github/workflows/split-core-contracts-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: cleanup/core-contracts-2026-09-15
+          fetch-depth: 0
+
+      - name: Split Core abstractions and models without changing public contracts
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+
+          const servicesPath = 'backend/src/AvorionAdmin.Core/Abstractions/Services.cs';
+          const modelsPath = 'backend/src/AvorionAdmin.Core/Models/ApiModels.cs';
+
+          function parseDeclarations(filePath) {
+            const text = fs.readFileSync(filePath, 'utf8');
+            const regex = /^public\s+(?:sealed\s+)?(?:record|class|interface|enum)\s+([A-Za-z_][A-Za-z0-9_]*)/gm;
+            const matches = [...text.matchAll(regex)];
+            if (matches.length === 0) throw new Error(`No public declarations found in ${filePath}`);
+            const declarations = new Map();
+            for (let i = 0; i < matches.length; i++) {
+              const name = matches[i][1];
+              const start = matches[i].index;
+              const end = i + 1 < matches.length ? matches[i + 1].index : text.length;
+              const body = text.slice(start, end).trim();
+              if (declarations.has(name)) throw new Error(`Duplicate declaration ${name} in ${filePath}`);
+              declarations.set(name, body);
+            }
+            return declarations;
+          }
+
+          function writeGroups(sourcePath, baseDir, namespaceName, commonUsing, groups) {
+            const declarations = parseDeclarations(sourcePath);
+            const assigned = new Set();
+            for (const [fileName, config] of Object.entries(groups)) {
+              const names = config.names;
+              const pieces = names.map((name) => {
+                const body = declarations.get(name);
+                if (!body) throw new Error(`Missing ${name} in ${sourcePath}`);
+                if (assigned.has(name)) throw new Error(`Declaration ${name} assigned twice`);
+                assigned.add(name);
+                return body;
+              });
+              const usingText = config.using ?? commonUsing;
+              const header = `${usingText ? `${usingText}\n\n` : ''}namespace ${namespaceName};\n\n`;
+              fs.writeFileSync(path.join(baseDir, fileName), header + pieces.join('\n\n') + '\n', 'utf8');
+            }
+            const sourceNames = [...declarations.keys()].sort();
+            const assignedNames = [...assigned].sort();
+            if (JSON.stringify(sourceNames) !== JSON.stringify(assignedNames)) {
+              const missing = sourceNames.filter((name) => !assigned.has(name));
+              const unknown = assignedNames.filter((name) => !declarations.has(name));
+              throw new Error(`Split coverage mismatch for ${sourcePath}; missing=${missing.join(',')}; unknown=${unknown.join(',')}`);
+            }
+            fs.unlinkSync(sourcePath);
+            console.log(`${sourcePath}: ${sourceNames.length} declarations -> ${Object.keys(groups).length} files`);
+          }
+
+          writeGroups(
+            servicesPath,
+            'backend/src/AvorionAdmin.Core/Abstractions',
+            'AvorionAdmin.Core.Abstractions',
+            'using AvorionAdmin.Core.Models;',
+            {
+              'ServerServices.cs': {
+                names: [
+                  'IServerProbe', 'ISteamQueryProbe', 'ResolvedLogSource', 'ResolvedBackupSource',
+                  'IServerRuntimePathResolver', 'IManagedServerRuntime', 'IManagedServerControlService'
+                ]
+              },
+              'RewardInventoryServices.cs': {
+                names: [
+                  'IPlayerRewardService', 'IAllianceRewardService', 'IPlayerMailService',
+                  'IInventoryService', 'IInventoryCatalogService'
+                ]
+              },
+              'ObservabilityServices.cs': {
+                names: [
+                  'IPerformanceStore', 'IBackupScanner', 'ILogReader', 'IDiagnosticService',
+                  'IFileSystemBrowser', 'IMemoryPolicyStore'
+                ]
+              },
+              'UpdateSetupServices.cs': {
+                names: [
+                  'IUpdateEnvironmentService', 'IUpdateEnvironmentStore', 'IUpdateInspectionService',
+                  'IUpdateRollbackPointService', 'IServerSetupDraftStore', 'IServerSetupPreflightService',
+                  'IServerSetupApplicationService', 'IServerInitializationService', 'ISteamCmdInstaller',
+                  'IAvorionServerInstaller'
+                ]
+              },
+              'OperationServices.cs': {
+                names: ['IdempotencyConflictException', 'IOperationStore', 'IAutomationTaskStore']
+              }
+            }
+          );
+
+          writeGroups(
+            modelsPath,
+            'backend/src/AvorionAdmin.Core/Models',
+            'AvorionAdmin.Core.Models',
+            '',
+            {
+              'CommonModels.cs': {
+                names: [
+                  'Lifecycle', 'ConnectionState', 'DiagnosticState', 'OperationState', 'Provenance',
+                  'ConnectionProbe', 'SteamQuerySnapshot', 'LastSaveInfo', 'AgentInfo'
+                ]
+              },
+              'ServerModels.cs': {
+                names: [
+                  'ServerSummary', 'ServerStatus', 'ManagedLaunchProfile', 'GalaxyInitializationEvidence',
+                  'ManagedServerHealth', 'ManagedServerActionResult', 'ForceStopRequest', 'ServerInitializationResult'
+                ]
+              },
+              'PerformanceModels.cs': {
+                names: [
+                  'CpuMetrics', 'MemoryMetrics', 'DiskMetrics', 'NetworkMetrics', 'PerformanceSnapshot',
+                  'PerformancePoint', 'PerformanceHistory', 'MemoryOverview', 'MemoryPolicy',
+                  'MemoryPolicyUpdateRequest', 'SectorUnloadRequest', 'SectorUnloadResult'
+                ]
+              },
+              'UpdateModels.cs': {
+                names: [
+                  'UpdateStatus', 'UpdateCheckResult', 'VerifiedServerFile', 'UpdateVerificationResult',
+                  'UpdateRollbackPointResult', 'UpdateRollbackPointAvailability', 'UpdateComponentValidation',
+                  'UpdateEnvironmentValidation', 'UpdateEnvironmentDetection', 'UpdateEnvironmentConfiguration',
+                  'UpdateEnvironmentRequest', 'ServerSetupDraftRequest', 'ServerSetupPreflightRequest',
+                  'ServerSetupDraftConfiguration', 'ServerSetupValidationIssue', 'PortAvailability',
+                  'ServerSetupPreflightResult', 'ServerSetupApplicationResult', 'SteamCmdInstallRequest',
+                  'SteamCmdInstallationResult', 'AvorionServerInstallRequest', 'AvorionServerInstallPlan',
+                  'AvorionServerInstallationResult'
+                ]
+              },
+              'MaintenanceModels.cs': {
+                names: [
+                  'BackupRecord', 'BackupRestoreRequest', 'BackupRestoreResult', 'LogEntry', 'DiagnosticItem',
+                  'DiagnosticRun', 'FileSystemDirectoryEntry', 'FileSystemBrowseResult'
+                ]
+              },
+              'AutomationModels.cs': {
+                names: ['AutomationTaskRecord', 'AutomationTaskUpsertRequest', 'AutomationTaskList', 'DueAutomationTask']
+              },
+              'OperationModels.cs': {
+                using: 'using System.Text.Json;',
+                names: ['OperationAccepted', 'OperationCreateResult', 'OperationRecord']
+              },
+              'SecurityModels.cs': {
+                names: ['ApiErrorDetail', 'ApiErrorEnvelope', 'AdminSessionStatus', 'CommandSafetyStatus', 'WriteSafetyStatus']
+              }
+            }
+          );
+
+          fs.unlinkSync('.github/workflows/split-core-contracts-temp.yml');
+          NODE
+
+      - name: Commit contract-only split
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --check
+          git commit -m "M0-10: split Core contracts by responsibility"
+          git push origin HEAD:cleanup/core-contracts-2026-09-15
