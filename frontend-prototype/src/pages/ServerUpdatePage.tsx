@@ -19,7 +19,7 @@ import {
 
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { apiFetch } from "../features/server-update/serverUpdateApi";
+import { apiFetch } from "../lib/api";
 import { Button, Card } from "../components/ui";
 import type { ServerStatus, UpdateSetupStage } from "../types";
 import { UpdateManagementView } from "../features/server-update/UpdateManagementView";
