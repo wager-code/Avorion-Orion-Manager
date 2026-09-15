@@ -10,10 +10,11 @@ React / TypeScript 前端、.NET 8 API 与 Agent、SQLite、专用服务端 Lua 
 
 1. [当前交接](docs/development/HANDOFF.md)：当前任务、完成情况、阻塞、下一步。
 2. [步骤清单](docs/development/PLAN.md)：稳定任务编号、状态和验收条件。
-3. [协作与同步流程](docs/development/WORKFLOW.md)：分支、验证、提交和 Pull Request 流程。
-4. [决策记录](docs/development/DECISIONS.md)：当前有效的用户级决定。
-5. [用户需求](01_USER_REQUIREMENTS.md)、[能力矩阵](06_CAPABILITY_MATRIX.md)、[架构](07_MODULAR_ARCHITECTURE.md)。
-6. 根目录及相关子目录的 `AGENTS.md`，然后阅读本次任务相关源码。
+3. [基线实际验收](docs/development/BASELINE_ACCEPTANCE.md)：自动启动、本机页面、隔离游戏服务器三层验收。
+4. [协作与同步流程](docs/development/WORKFLOW.md)：分支、验证、提交和 Pull Request 流程。
+5. [决策记录](docs/development/DECISIONS.md)：当前有效的用户级决定。
+6. [用户需求](01_USER_REQUIREMENTS.md)、[能力矩阵](06_CAPABILITY_MATRIX.md)、[架构](07_MODULAR_ARCHITECTURE.md)。
+7. 根目录及相关子目录的 `AGENTS.md`，然后阅读本次任务相关源码。
 
 用户当前明确要求优先。`docs/reference-specs/`、`docs/evidence/`、`docs/ai-review/` 属于历史规格、证据或评审资料，可以用于追溯，但不能覆盖当前任务、当前能力矩阵或当前机器事实。
 
@@ -35,6 +36,6 @@ React / TypeScript 前端、.NET 8 API 与 Agent、SQLite、专用服务端 Lua 
 
 ## 当前接续状态
 
-首次源码与规划上传（SYNC-02）已完成。2026-09-15 开始 M0-07 仓库卫生清理：收敛接续入口、删除明确过期的迁移文件和重复制品，不修改业务功能。
+2026-09-15 已完成仓库卫生、前端去重复、样式分区、Core/Endpoint/SQLite/ManagementBridge 职责拆分和第一阶段测试结构整理；后续不再为了文件更小机械拆分。
 
-下一阶段仍以 `PLAN.md` 为准：完成当前基线构建/自动测试，并逐步建立 CI 后再继续新增大型游戏能力。
+当前进入 M0 基线实际验收：先由 CI 做 API + 前端真实启动冒烟，再在本机检查页面状态，最后在已确认的隔离 Avorion 测试服验证 RCON、OrionAdminBridge 和游戏数据链路。通过后再进入 M1 普通炮塔预览和单件发放。
