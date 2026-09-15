@@ -1,0 +1,126 @@
+name: Temporary exact CSS splitter
+
+on:
+  push:
+    branches:
+      - cleanup/styles-split-2026-09-15
+    paths:
+      - .github/workflows/split-styles-temp.yml
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: cleanup/styles-split-2026-09-15
+          fetch-depth: 0
+
+      - name: Split styles without changing rule order
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const crypto = require('crypto');
+
+          const entry = 'frontend-prototype/src/styles.css';
+          const outDir = 'frontend-prototype/src/styles';
+          const original = fs.readFileSync(entry, 'utf8');
+          const tailwindImport = '@import "tailwindcss";';
+
+          if (!original.startsWith(tailwindImport)) {
+            throw new Error('styles.css no longer starts with the expected Tailwind import');
+          }
+
+          const find = (marker, from = 0) => {
+            const index = original.indexOf(marker, from);
+            if (index < 0) throw new Error(`Missing CSS boundary: ${marker}`);
+            return index;
+          };
+
+          const control = find('/* Control */');
+          const serverUpdate = find('/* Server update */', control);
+          const player = find('/* Player management */', serverUpdate);
+          const alliance = find('/* Alliance management */', player);
+          const responsive = find('@media (max-width: 1600px)', alliance);
+          const game = find('/* Game management — approved reward center */', responsive);
+          const setup = find('/* Server update setup flow — confirmed A-style states */', game);
+
+          const boundaries = [
+            tailwindImport.length,
+            control,
+            serverUpdate,
+            player,
+            alliance,
+            responsive,
+            game,
+            setup,
+            original.length,
+          ];
+
+          for (let i = 1; i < boundaries.length; i++) {
+            if (boundaries[i] <= boundaries[i - 1]) {
+              throw new Error(`CSS boundary order changed at index ${i}`);
+            }
+          }
+
+          const files = [
+            '00-foundation.css',
+            '10-server-core.css',
+            '20-server-operations.css',
+            '30-player-inventory.css',
+            '40-alliance.css',
+            '50-global-responsive.css',
+            '60-game-management.css',
+            '70-server-setup.css',
+          ];
+
+          fs.rmSync(outDir, { recursive: true, force: true });
+          fs.mkdirSync(outDir, { recursive: true });
+
+          const pieces = files.map((name, i) => {
+            const content = original.slice(boundaries[i], boundaries[i + 1]);
+            fs.writeFileSync(path.join(outDir, name), content, 'utf8');
+            return content;
+          });
+
+          const reconstructed = tailwindImport + pieces.join('');
+          if (reconstructed !== original) {
+            throw new Error('Exact reconstruction check failed; refusing to rewrite styles.css');
+          }
+
+          const urlMatches = original.match(/url\s*\(/gi) || [];
+          if (urlMatches.length > 0) {
+            throw new Error(`Found ${urlMatches.length} url(...) reference(s); moving CSS files could change relative URL resolution`);
+          }
+
+          const imports = [
+            tailwindImport,
+            ...files.map((name) => `@import "./styles/${name}";`),
+            '',
+          ].join('\n');
+          fs.writeFileSync(entry, imports, 'utf8');
+
+          const hash = (value) => crypto.createHash('sha256').update(value).digest('hex');
+          console.log(`Original CSS bytes: ${Buffer.byteLength(original)}`);
+          console.log(`Original SHA-256: ${hash(original)}`);
+          console.log(`Reconstructed SHA-256: ${hash(reconstructed)}`);
+          for (let i = 0; i < files.length; i++) {
+            console.log(`${files[i]}: ${Buffer.byteLength(pieces[i])} bytes`);
+          }
+          NODE
+
+      - name: Commit generated split
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add frontend-prototype/src/styles.css frontend-prototype/src/styles/
+          git diff --cached --check
+          git commit -m "M0-09: split global stylesheet by existing sections"
+          git push origin HEAD:cleanup/styles-split-2026-09-15
