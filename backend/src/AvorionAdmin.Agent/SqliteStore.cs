@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 
 namespace AvorionAdmin.Agent;
 
-public sealed partial class SqliteStore
+public sealed partial class SqliteStore : IPerformanceStore, IOperationStore, IUpdateEnvironmentStore, IServerSetupDraftStore, IAutomationTaskStore, IMemoryPolicyStore
 {
 
     private readonly string _connectionString;
@@ -278,4 +278,5 @@ public sealed partial class SqliteStore
     private static DateTimeOffset? ParseDate(string? value) =>
         string.IsNullOrWhiteSpace(value)
             ? null
-            : DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);}
+            : DateTimeOffset.Parse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+}
