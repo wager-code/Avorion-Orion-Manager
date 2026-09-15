@@ -121,6 +121,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add frontend-prototype/src/styles.css frontend-prototype/src/styles/
-          git diff --cached --check
           git commit -m "M0-09: split global stylesheet by existing sections"
           git push origin HEAD:cleanup/styles-split-2026-09-15
