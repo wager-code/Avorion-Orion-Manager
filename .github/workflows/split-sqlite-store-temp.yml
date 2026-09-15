@@ -1,0 +1,101 @@
+name: Temporary SqliteStore splitter
+
+on:
+  push:
+    branches:
+      - cleanup/sqlite-store-2026-09-15
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: cleanup/sqlite-store-2026-09-15
+          fetch-depth: 0
+
+      - name: Split SqliteStore by responsibility
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("backend/src/AvorionAdmin.Agent/SqliteStore.cs")
+          text = path.read_text(encoding="utf-8")
+
+          if "public sealed partial class SqliteStore" in text:
+              print("SqliteStore is already split; nothing to do.")
+              raise SystemExit(0)
+
+          class_marker = "public sealed class SqliteStore"
+          class_start = text.index(class_marker)
+          preamble = text[:class_start]
+          body_start = text.index("{", class_start) + 1
+          body_end = text.rfind("\n}")
+
+          automation_anchor = "    public async Task<IReadOnlyList<AutomationTaskRecord>> ListAsync"
+          update_anchor = "    public async Task<UpdateEnvironmentConfiguration?> GetAsync"
+          performance_anchor = "    public async Task AppendAsync"
+          operation_anchor = "    public async Task<OperationRecord> CreateAsync"
+          helper_anchor = "    private const string TaskSelect"
+
+          automation_start = text.index(automation_anchor, body_start)
+          update_start = text.index(update_anchor, automation_start)
+          performance_start = text.index(performance_anchor, update_start)
+          operation_start = text.index(operation_anchor, performance_start)
+          helper_start = text.index(helper_anchor, operation_start)
+
+          core_head = text[body_start:automation_start]
+          automation_block = text[automation_start:update_start]
+          update_block = text[update_start:performance_start]
+          performance_block = text[performance_start:operation_start]
+          operation_block = text[operation_start:helper_start]
+          helper_tail = text[helper_start:body_end]
+
+          original_domain = text[automation_start:helper_start]
+          reconstructed_domain = automation_block + update_block + performance_block + operation_block
+          if original_domain != reconstructed_domain:
+              raise RuntimeError("SqliteStore domain blocks changed while splitting")
+
+          declaration = "public sealed partial class SqliteStore"
+
+          def render(body: str) -> str:
+              return preamble + declaration + "\n{\n" + body + "}\n"
+
+          path.write_text(render(core_head + helper_tail), encoding="utf-8")
+          path.with_name("SqliteStore.AutomationMemory.cs").write_text(render(automation_block), encoding="utf-8")
+          path.with_name("SqliteStore.UpdateSetup.cs").write_text(render(update_block), encoding="utf-8")
+          path.with_name("SqliteStore.Performance.cs").write_text(render(performance_block), encoding="utf-8")
+          path.with_name("SqliteStore.Operations.cs").write_text(render(operation_block), encoding="utf-8")
+
+          generated = [
+              path.with_name("SqliteStore.AutomationMemory.cs"),
+              path.with_name("SqliteStore.UpdateSetup.cs"),
+              path.with_name("SqliteStore.Performance.cs"),
+              path.with_name("SqliteStore.Operations.cs"),
+          ]
+          if any(not p.exists() for p in generated):
+              raise RuntimeError("Expected split files were not created")
+
+          if "CREATE TABLE IF NOT EXISTS operations" not in path.read_text(encoding="utf-8"):
+              raise RuntimeError("Shared schema initialization moved unexpectedly")
+          if "OpenAsync" not in path.read_text(encoding="utf-8"):
+              raise RuntimeError("Shared connection helper moved unexpectedly")
+
+          print("Split SqliteStore into shared core plus 4 responsibility partials without changing domain blocks.")
+
+      - name: Commit SqliteStore split
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/src/AvorionAdmin.Agent/SqliteStore*.cs
+          git commit -m "M0-10: split SqliteStore by responsibility"
+          git push origin HEAD:cleanup/sqlite-store-2026-09-15
