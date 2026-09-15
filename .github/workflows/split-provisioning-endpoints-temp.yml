@@ -1,0 +1,117 @@
+name: Temporary Provisioning endpoint splitter
+
+on:
+  push:
+    branches:
+      - cleanup/provisioning-endpoints-2026-09-15
+
+permissions:
+  contents: write
+
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: cleanup/provisioning-endpoints-2026-09-15
+          fetch-depth: 0
+
+      - name: Split ProvisioningEndpoints by responsibility
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("backend/src/AvorionAdmin.Api/Endpoints/ProvisioningEndpoints.cs")
+          text = path.read_text(encoding="utf-8")
+
+          if "MapUpdateEnvironmentEndpoints(app);" in text:
+              print("ProvisioningEndpoints is already split; nothing to do.")
+              raise SystemExit(0)
+
+          class_marker = "public static class ProvisioningEndpoints"
+          class_start = text.index(class_marker)
+          preamble = text[:class_start]
+
+          update_anchor = '        app.MapGet("/api/v1/servers/{serverId}/updates/status"'
+          setup_anchor = '        app.MapGet("/api/v1/servers/{serverId}/server-setup/draft"'
+          install_anchor = '        app.MapPost("/api/v1/servers/{serverId}/installations/steamcmd"'
+          filesystem_anchor = '        app.MapGet("/api/v1/servers/{serverId}/filesystem/directories"'
+
+          update_start = text.index(update_anchor)
+          setup_start = text.index(setup_anchor, update_start)
+          install_start = text.index(install_anchor, setup_start)
+          filesystem_start = text.index(filesystem_anchor, install_start)
+          return_start = text.index("\n        return app;", filesystem_start)
+
+          update_block = text[update_start:setup_start]
+          setup_block = text[setup_start:install_start]
+          installation_block = text[install_start:filesystem_start]
+          filesystem_block = text[filesystem_start:return_start]
+
+          original_endpoint_body = text[update_start:return_start]
+          reconstructed_endpoint_body = update_block + setup_block + installation_block + filesystem_block
+          if original_endpoint_body != reconstructed_endpoint_body:
+              raise RuntimeError("Endpoint blocks changed while splitting")
+
+          original_map_count = original_endpoint_body.count("app.Map")
+          if original_map_count == 0:
+              raise RuntimeError("No endpoint registrations found")
+
+          orchestrator = preamble + '''public static partial class ProvisioningEndpoints
+          {
+              public static WebApplication MapProvisioningEndpoints(this WebApplication app)
+              {
+                  MapUpdateEnvironmentEndpoints(app);
+                  MapServerSetupEndpoints(app);
+                  MapInstallationEndpoints(app);
+                  MapFileSystemEndpoints(app);
+                  return app;
+              }
+          }
+          '''
+
+          def partial(method_name: str, block: str) -> str:
+              return preamble + f'''public static partial class ProvisioningEndpoints
+          {{
+              private static void {method_name}(WebApplication app)
+              {{
+          {block}    }}
+          }}
+          '''
+
+          path.write_text(orchestrator, encoding="utf-8")
+          path.with_name("ProvisioningEndpoints.UpdateEnvironment.cs").write_text(
+              partial("MapUpdateEnvironmentEndpoints", update_block), encoding="utf-8")
+          path.with_name("ProvisioningEndpoints.ServerSetup.cs").write_text(
+              partial("MapServerSetupEndpoints", setup_block), encoding="utf-8")
+          path.with_name("ProvisioningEndpoints.Installation.cs").write_text(
+              partial("MapInstallationEndpoints", installation_block), encoding="utf-8")
+          path.with_name("ProvisioningEndpoints.FileSystem.cs").write_text(
+              partial("MapFileSystemEndpoints", filesystem_block), encoding="utf-8")
+
+          generated = [
+              path.with_name("ProvisioningEndpoints.UpdateEnvironment.cs"),
+              path.with_name("ProvisioningEndpoints.ServerSetup.cs"),
+              path.with_name("ProvisioningEndpoints.Installation.cs"),
+              path.with_name("ProvisioningEndpoints.FileSystem.cs"),
+          ]
+          generated_map_count = sum(p.read_text(encoding="utf-8").count("app.Map") for p in generated)
+          if generated_map_count != original_map_count:
+              raise RuntimeError(f"Endpoint count changed: {original_map_count} -> {generated_map_count}")
+
+          print(f"Split {original_map_count} endpoint registrations into 4 responsibility files.")
+
+      - name: Commit endpoint-only split
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backend/src/AvorionAdmin.Api/Endpoints/ProvisioningEndpoints*.cs
+          git commit -m "M0-10: split Provisioning endpoints by responsibility"
+          git push origin HEAD:cleanup/provisioning-endpoints-2026-09-15
