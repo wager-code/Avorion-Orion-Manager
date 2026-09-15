@@ -1,5 +1,13 @@
-import { Database, ServerCog, Gamepad2, ShieldCheck } from 'lucide-react';
-import type { ApiErrorEnvelope,  InstallationResult, SteamCmdInstallationResult, AvorionServerInstallationResult, UpdateEnvironmentValidation } from './types';
+import { Database, ServerCog, Gamepad2, ShieldCheck } from "lucide-react";
+import type { ApiErrorEnvelope, InstallationResult, SteamCmdInstallationResult, AvorionServerInstallationResult, UpdateEnvironmentValidation } from "./types";
+
+export {
+  activeOperationStorageKeys,
+  clearStoredOperationId,
+  readStoredOperationId,
+  storeOperationId,
+} from "./operationStorage";
+
 export function isSteamCmdInstallationResult(result: InstallationResult | null): result is SteamCmdInstallationResult {
   return Boolean(result && "signer" in result && !("appId" in result));
 }
@@ -13,37 +21,6 @@ export function readSessionValue(key: string, fallback: string) {
     return window.sessionStorage.getItem(key) ?? fallback;
   } catch {
     return fallback;
-  }
-}
-
-export const activeOperationStorageKeys = {
-  installation: "avorion.update.active-installation-operation",
-  setup: "avorion.update.active-setup-operation",
-  initialization: "avorion.update.active-initialization-operation",
-  updateCheck: "avorion.update.latest-check-operation",
-  fileVerification: "avorion.update.latest-verification-operation",
-  rollbackPoint: "avorion.update.latest-rollback-point-operation",
-} as const;
-
-export function readStoredOperationId(key: string) {
-  const value = readSessionValue(key, "").trim();
-  return /^op_[a-zA-Z0-9]+$/.test(value) ? value : null;
-}
-
-export function storeOperationId(key: string, operationId: string) {
-  if (!/^op_[a-zA-Z0-9]+$/.test(operationId)) return;
-  try {
-    window.sessionStorage.setItem(key, operationId);
-  } catch {
-    // The URL still keeps the operation recoverable while this page is open.
-  }
-}
-
-export function clearStoredOperationId(key: string) {
-  try {
-    window.sessionStorage.removeItem(key);
-  } catch {
-    // Storage may be unavailable; there is nothing else to clear.
   }
 }
 
@@ -84,5 +61,3 @@ export const serverConfigurationChecks = [
   { label: "游戏与查询端口", result: "尚未验证", icon: Gamepad2 },
   { label: "RCON", result: "尚未配置", icon: ShieldCheck },
 ] as const;
-
-
