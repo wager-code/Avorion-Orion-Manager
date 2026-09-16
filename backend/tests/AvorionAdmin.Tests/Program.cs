@@ -17,6 +17,7 @@ string? fakeServerExecutableForCleanup = null;
 
 try
 {
+    OpenApiContractChecks.Run(Check);
     ManagementBridgeChecks.Run(Check);
     await ManagementBridgeChecks.CheckTransportAsync(Check);
     var galaxy = Directory.CreateDirectory(Path.Combine(root, "MyGalaxy")).FullName;
