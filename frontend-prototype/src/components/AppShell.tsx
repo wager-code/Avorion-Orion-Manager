@@ -5,13 +5,9 @@ import {
   Box,
   ChevronDown,
   Gamepad2,
-  LayoutDashboard,
   Menu,
   Orbit,
-  Puzzle,
-  Rocket,
   Server,
-  Settings,
   ShieldCheck,
   Users,
   UsersRound,
@@ -24,14 +20,10 @@ import type { ServerLifecycle, ServerStatus, UpdateSetupStage } from "../types";
 import { StatusPill } from "./ui";
 
 const primaryNav = [
-  { label: "总览", icon: LayoutDashboard },
   { label: "服务器管理", icon: Server },
   { label: "玩家管理", icon: Users },
   { label: "联盟管理", icon: UsersRound },
   { label: "游戏管理", icon: Gamepad2 },
-  { label: "舰船管理", icon: Rocket },
-  { label: "MOD 管理", icon: Puzzle },
-  { label: "设置", icon: Settings },
 ];
 
 const serverTabs = [

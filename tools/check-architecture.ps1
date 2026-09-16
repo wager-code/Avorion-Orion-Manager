@@ -32,10 +32,17 @@ $endpointModules = @(
     'ManagementBridgeEndpoints.cs',
     'PlayerEndpoints.cs',
     'AllianceEndpoints.cs',
+    'GameManagementEndpoints.cs',
+    'InventoryEndpoints.cs',
+    'InventoryCatalogEndpoints.cs',
     'ServerOverviewEndpoints.cs',
     'PerformanceEndpoints.cs',
     'SectorEndpoints.cs',
     'ProvisioningEndpoints.cs',
+    'ProvisioningEndpoints.UpdateEnvironment.cs',
+    'ProvisioningEndpoints.Installation.cs',
+    'ProvisioningEndpoints.ServerSetup.cs',
+    'ProvisioningEndpoints.FileSystem.cs',
     'AutomationEndpoints.cs',
     'BackupEndpoints.cs',
     'LogEndpoints.cs',
@@ -54,7 +61,7 @@ if ((Get-Content -LiteralPath $app -Raw) -match '<Route\b') {
 Require-File 'frontend-prototype\src\app\AppRoutes.tsx' | Out-Null
 
 $command = Require-MaxLines 'management-mod\OrionAdminBridge\data\scripts\commands\orionadmin.lua' 100
-foreach ($module in @('protocol.lua', 'players.lua', 'playerassets.lua', 'rewards.lua', 'alliances.lua', 'allianceassets.lua', 'sectors.lua')) {
+foreach ($module in @('protocol.lua', 'dispatch.lua', 'players.lua', 'playerassets.lua', 'rewards.lua', 'mailrewards.lua', 'alliances.lua', 'allianceassets.lua', 'inventory.lua', 'sectors.lua')) {
     Require-File "management-mod\OrionAdminBridge\data\scripts\lib\orionadmin\$module" | Out-Null
 }
 
