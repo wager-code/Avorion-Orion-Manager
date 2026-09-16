@@ -66,3 +66,7 @@ jobs:
         working-directory: frontend-prototype
         shell: pwsh
         run: pnpm test:sites
+
+      - name: Build and smoke-test Windows package
+        shell: pwsh
+        run: ./tools/publish-windows.ps1 -OutputPath "${{ runner.temp }}\OrionAdmin-win-x64" -SkipDependencyInstall -SkipFrontendBuild -SmokeTest

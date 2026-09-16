@@ -14,6 +14,8 @@ builder.Services.AddOrionAdminModules(builder.Configuration);
 var app = builder.Build();
 app.UseMiddleware<LocalOnlyMiddleware>();
 app.UseMiddleware<AdminWriteProtectionMiddleware>();
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 var performanceStore = app.Services.GetRequiredService<IPerformanceStore>();
 var operationStore = app.Services.GetRequiredService<IOperationStore>();
@@ -44,5 +46,7 @@ app.MapLogEndpoints();
 app.MapDiagnosticEndpoints();
 app.MapServerControlEndpoints();
 app.MapUpdateCommandEndpoints();
+app.Map("/api/{**unmatched}", () => Results.NotFound());
+app.MapFallbackToFile("index.html");
 
 app.Run();
