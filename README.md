@@ -35,6 +35,6 @@ React / TypeScript 前端、.NET 8 API 与 Agent、SQLite、专用服务端 Lua 
 
 ## 当前接续状态
 
-首次源码与规划上传、仓库卫生清理、模块拆分、测试 fixture 整理以及 PR #11 的配置预检反馈修复均已进入 `main`；现有 GitHub Actions 会验证架构边界、.NET 构建、后端验证、前端类型检查、生产构建和 Sites 测试。
+首次源码与规划上传、仓库卫生清理、模块拆分、测试 fixture 整理以及 PR #11～#14 的配置反馈、导航真实性、API 合同和 QA 可移植性改进均已进入 `main`；现有 GitHub Actions 会验证架构边界、OpenAPI 漂移、QA 脚本语法、.NET 构建、后端验证、前端类型检查、生产构建和 Sites 测试。
 
-当前按 `PLAN.md` 继续完成 P0 基线真实性：隐藏未实现入口、同步文档与 API 合同、提高前端 QA 的可移植性，并建立真实服务器验收基线；完成后再进入普通炮塔、舰船、活动和星区建设。
+当前按 `PLAN.md` 完成 P0 的页面与隔离 Galaxy 真实验收；随后依次推进可重复 Windows 发布/服务化、OrionAdminBridge 安装维护、完整更新与安全点恢复，再进入普通炮塔、舰船、活动和星区建设。
