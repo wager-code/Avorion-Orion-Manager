@@ -4,7 +4,6 @@ import * as Tooltip from "@radix-ui/react-tooltip";
 import {
   Box,
   ChevronDown,
-  FileCog,
   Gamepad2,
   LayoutDashboard,
   Menu,
@@ -32,7 +31,6 @@ const primaryNav = [
   { label: "游戏管理", icon: Gamepad2 },
   { label: "舰船管理", icon: Rocket },
   { label: "MOD 管理", icon: Puzzle },
-  { label: "文件与配置", icon: FileCog },
   { label: "设置", icon: Settings },
 ];
 

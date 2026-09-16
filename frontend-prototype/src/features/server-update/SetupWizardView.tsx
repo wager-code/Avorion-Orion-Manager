@@ -88,10 +88,11 @@ export function SetupWizardView({
   const [initializationError, setInitializationError] = useState<string | null>(null);
   const portsValid = [gamePort, queryPort, rconPort].every((port) => port >= 1 && port <= 65535)
     && new Set([gamePort, queryPort, rconPort]).size === 3;
+  const rconPasswordReady = !rconEnabled || rconPassword.length >= 8;
   const stepValid = step === 1
     ? serverName.trim().length > 0 && galaxyName.trim().length > 0 && galaxyDirectory.trim().length > 0
     : step === 2
-      ? listenAddress.trim().length > 0 && portsValid && (!rconEnabled || rconPassword.length >= 8)
+      ? listenAddress.trim().length > 0 && portsValid && rconPasswordReady
       : true;
   const steps = ["Galaxy 与基本信息", "网络与 RCON", "检查与启动"];
 
@@ -244,6 +245,12 @@ export function SetupWizardView({
 
   const runPreflight = async () => {
     if (setupBusy) return;
+    if (!rconPasswordReady) {
+      const message = "RCON 密码为空或不足 8 位，请返回第 2 步重新输入";
+      setSetupError(message);
+      onNotify(message);
+      return;
+    }
     setSetupBusy("preflight");
     setSetupError(null);
     setPreflightResult(null);
@@ -257,9 +264,16 @@ export function SetupWizardView({
       if (!response.ok) throw new Error(await readApiError(response));
       const result = await response.json() as ServerSetupPreflightResult;
       setPreflightResult(result);
-      onNotify(result.valid ? "服务器配置真实预检通过" : "服务器配置预检发现需要修正的项目");
+      const firstError = result.issues.find((issue) => issue.severity === "error")?.message;
+      onNotify(result.valid
+        ? "服务器配置真实预检通过"
+        : firstError
+          ? `服务器配置预检未通过：${firstError}`
+          : "服务器配置预检发现需要修正的项目");
     } catch (caught) {
-      setSetupError(caught instanceof Error ? caught.message : "服务器配置预检失败");
+      const message = caught instanceof Error ? caught.message : "服务器配置预检失败";
+      setSetupError(message);
+      onNotify(`服务器配置预检失败：${message}`);
     } finally {
       setSetupBusy(null);
     }
@@ -376,6 +390,22 @@ export function SetupWizardView({
     "console-stop-confirmed": "首次进程已执行 /stop 并安全退出",
     "rcon-authenticated": "重启后 RCON 认证通过",
   };
+  const preflightErrorSummary = preflightResult && !preflightResult.valid
+    ? preflightResult.issues.filter((issue) => issue.severity === "error").map((issue) => issue.message).join("；")
+    : "";
+  const reviewRconStatus = !rconEnabled
+    ? "未启用"
+    : rconPasswordReady
+      ? `${rconPort} · 密码已输入`
+      : `${rconPort} · 密码未输入或不足 8 位，请返回第 2 步重新输入`;
+  const preflightActionError = step === 3
+    ? setupError
+      ?? (!rconPasswordReady
+        ? "RCON 密码为空或不足 8 位，请返回第 2 步重新输入"
+        : preflightResult && !preflightResult.valid
+          ? `预检未通过：${preflightErrorSummary || "请修正检查结果后重试"}`
+          : null)
+    : null;
 
   return (
     <div className="setup-wizard-page">
@@ -514,13 +544,13 @@ export function SetupWizardView({
             </section>
             <section>
               <header><strong>网络与 RCON</strong><button type="button" onClick={() => onStepChange(2)}>修改</button></header>
-              <dl><div><dt>监听地址</dt><dd>{listenAddress}</dd></div><div><dt>游戏 / Query</dt><dd>{gamePort} / {queryPort}</dd></div><div><dt>RCON</dt><dd>{rconEnabled ? `${rconPort} · 密码已设置` : "未启用"}</dd></div><div><dt>防火墙</dt><dd>{allowFirewallChange ? "执行前另行确认" : "不修改"}</dd></div></dl>
+              <dl><div><dt>监听地址</dt><dd>{listenAddress}</dd></div><div><dt>游戏 / Query</dt><dd>{gamePort} / {queryPort}</dd></div><div><dt>RCON</dt><dd>{reviewRconStatus}</dd></div><div><dt>防火墙</dt><dd>{allowFirewallChange ? "执行前另行确认" : "不修改"}</dd></div></dl>
             </section>
           </div>
 
           {!preflightResult && !applicationOperation && <div className="setup-blocked-note"><ShieldCheck size={20} /><div><strong>先运行真实预检</strong><span>预检通过后才能安全应用配置；本操作不会启动服务端、修改防火墙，也不会安装或写入任何 MOD。</span></div></div>}
           {preflightResult?.valid && !applicationSucceeded && <div className="setup-basic-note"><CheckCircle2 size={20} /><span><strong>真实预检通过：</strong>更新环境、Galaxy 路径和 {preflightResult.ports.length} 个端口均已检查，现在可以安全应用已验证配置。</span></div>}
-          {preflightResult && !preflightResult.valid && <div className="setup-blocked-note"><AlertCircle size={20} /><div><strong>预检未通过</strong><span>{preflightResult.issues.filter((issue) => issue.severity === "error").map((issue) => issue.message).join("；")}</span></div></div>}
+          {preflightResult && !preflightResult.valid && <div className="setup-blocked-note"><AlertCircle size={20} /><div><strong>预检未通过</strong><span>{preflightErrorSummary || "请修正检查结果后重试"}</span></div></div>}
           {preflightResult && <div className="setup-capability-list">
             {preflightResult.ports.map((port) => <div key={`${port.protocol}-${port.port}`}>{port.available ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}<span><strong>{port.purpose} · {port.port}/{port.protocol.toUpperCase()}</strong><small>{port.evidence}</small></span></div>)}
             {preflightResult.issues.filter((issue) => issue.severity === "warning").map((issue) => <div key={issue.code}><Info size={18} /><span><strong>尚未执行</strong><small>{issue.message}</small></span></div>)}
@@ -602,6 +632,7 @@ export function SetupWizardView({
         <Button variant="secondary" size="lg" onClick={() => void saveDraft()} disabled={setupBusy !== null}>{setupBusy === "saving" ? <LoaderCircle className="spin" size={18} /> : null}{setupBusy === "saving" ? "正在保存" : "保存草稿"}</Button>
         <div>
           {step < 3 ? <Button variant="primary" size="lg" disabled={!stepValid || setupBusy === "loading"} onClick={next}>下一步：{steps[step]}<ArrowRight size={18} /></Button> : initializationSucceeded ? <Button variant="primary" size="lg" onClick={onComplete}><CheckCircle2 size={18} />进入服务器控制</Button> : applicationSucceeded ? <Button variant="primary" size="lg" disabled>{initializationRunning ? <LoaderCircle className="spin" size={18} /> : <CheckCircle2 size={18} />}{initializationRunning ? "首次初始化进行中" : "配置已安全应用"}</Button> : preflightResult?.valid ? <Button variant="primary" size="lg" onClick={() => void applyConfiguration()} disabled={setupBusy !== null || applicationRunning}>{setupBusy === "applying" || applicationRunning ? <LoaderCircle className="spin" size={18} /> : <ShieldCheck size={18} />}{setupBusy === "applying" ? "正在提交" : applicationRunning ? "正在安全应用" : "安全应用已验证配置"}</Button> : <Button variant="primary" size="lg" onClick={() => void runPreflight()} disabled={setupBusy !== null}>{setupBusy === "preflight" ? <LoaderCircle className="spin" size={18} /> : <ShieldCheck size={18} />}{setupBusy === "preflight" ? "正在真实预检" : "保存并运行真实预检"}</Button>}
+          {preflightActionError && <div className="setup-inline-error" role="alert" aria-live="assertive">{preflightActionError}</div>}
           {!stepValid && <span>{step === 1 ? "请填写基础信息并选择 Galaxy 存档目录" : "请修正端口并设置至少 8 位的 RCON 密码"}</span>}
           {step === 3 && <span>{initializationSucceeded ? "首次保存、安全停服、RCON 写入与认证均已有真实证据" : applicationSucceeded ? "配置写入已完成；全新 Galaxy 可在上方启动首次初始化" : applicationFailed ? "请返回网络与 RCON 重新输入密码并再次预检" : preflightResult?.valid ? "将写入受控启动档案；已有 server.ini 时才原子更新已验证字段" : "只检查并保存草稿，不会启动服务端"}</span>}
         </div>
