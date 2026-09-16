@@ -8,7 +8,18 @@
 - 全站 11 个页面在 1440×900、1920×1080 共采集 22 个只读状态；页面错误与横向溢出均为 0。未配置受管运行档案时，控制、内存、备份、日志、玩家、联盟和奖励的真实数据接口按合同返回 503，页面均显示明确不可用原因并禁用危险操作，没有伪造成功或数据。
 - 当前运行环境已真实验证 SteamCMD `D:\\SteamCMD\\steamcmd.exe`、Avorion 服务端 `E:\\AvorionServer` 和 58 项物品目录，但服务端状态仍为 `MANAGED_PROFILE_MISSING`；本轮不启动游戏服、不应用配置、不发放物品。隔离 Galaxy 端到端验收归 M0-05。
 
-final result: passed（M0-02～M0-04；M0-05 待真实实例授权）
+final result: passed（M0-02～M0-04）
+
+## M0-05 隔离 Galaxy 真实验收（2026-09-16）
+
+- 目标固定为 `E:\\AvorionServer` 与 `E:\\MyGalaxy`；发现并修正草稿中错误的嵌套路径后，SteamCMD、服务端、Galaxy 与 27000/UDP、27003/UDP、27115/TCP 真实预检全部通过。
+- 原 `server.ini` 已备份至 `E:\\MyGalaxy\\.orionadmin-backups\\m0-05-20260916-213316`；配置通过原子写入与回读校验，RCON 仅绑定 `127.0.0.1:27115`。
+- Avorion Build 22295362 两次受控启动成功，均验证精确进程路径与 RCON 认证；运行态来源为 `managed-profile+rcon+orion-bridge`，OrionAdminBridge 0.10.0 返回 1 个已知玩家、1 个联盟及玩家 4 个真实库存槽位。
+- 全站运行态 11 个页面 × 2 个视口无页面错误或横向溢出；严格 Inventory 回归逐一打开两门炮塔，确认采矿激光、机枪、铁材质、科技、DPS、射程均显示且未泄漏 `userdata`。
+- `/save` Operation 返回 `save-command-acknowledged`；两次安全停服均返回 `rcon-authenticated`、`stop-command-acknowledged` 和精确 PID 退出证据。未调用强制终止，服务器最终保持 stopped。
+- Steam Query 在运行态超时并明确显示 degraded；这属于当前未完成的 Query 协议/端口验证范围，不影响 RCON、Bridge 与安全停服结论。
+
+final result: passed（M0-05）
 
 ## 玩家/联盟 Inventory（2026-09-09）
 

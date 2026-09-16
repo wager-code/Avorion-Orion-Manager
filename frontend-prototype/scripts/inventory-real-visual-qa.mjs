@@ -65,8 +65,17 @@ for (const viewport of [
     await page.locator(".inventory-workbench__list").scrollIntoViewIfNeeded();
   }
 
-  const dialogText = await page.locator(".inventory-workbench").innerText();
-  const metrics = await page.locator(".inventory-workbench").evaluate((element) => ({
+  const workbench = page.locator(".inventory-workbench");
+  const turretRows = workbench.locator(".inventory-workbench__item", { hasText: "炮塔" });
+  await turretRows.first().waitFor({ timeout: 15_000 });
+  const turretRowCount = await turretRows.count();
+  const turretDetailTexts = [];
+  for (let index = 0; index < turretRowCount; index += 1) {
+    await turretRows.nth(index).click();
+    turretDetailTexts.push(await workbench.locator(".inventory-workbench__inspector").innerText());
+  }
+  const dialogText = turretDetailTexts.join("\n");
+  const metrics = await workbench.evaluate((element) => ({
     clientWidth: element.clientWidth,
     scrollWidth: element.scrollWidth,
     clientHeight: element.clientHeight,
@@ -79,8 +88,8 @@ for (const viewport of [
   report.lastCompletedStep = "inventory workbench rendered";
   report.checks.push({
     viewport: viewport.name,
-    turretRows: await page.locator(".inventory-workbench__item", { hasText: "炮塔" }).count(),
-    workbenchVisible: await page.locator(".inventory-workbench").isVisible(),
+    turretRows: turretRowCount,
+    workbenchVisible: await workbench.isVisible(),
     showsMiningLaser: dialogText.includes("采矿激光"),
     showsChainGun: dialogText.includes("机枪"),
     showsMaterial: dialogText.includes("铁"),
@@ -95,10 +104,28 @@ for (const viewport of [
 }
 
 await browser.close();
+const failedCheck = report.checks.find((check) =>
+  check.turretRows !== 2
+  || !check.workbenchVisible
+  || !check.showsMiningLaser
+  || !check.showsChainGun
+  || !check.showsMaterial
+  || !check.showsTech
+  || !check.showsDps
+  || !check.showsRange
+  || check.leaksUserdata
+  || check.horizontalOverflow
+);
 if (report.failedResponses.some((value) => value.includes(" 503 "))) {
   report.status = "BLOCKED";
   report.failedStep = "real inventory API";
   report.reason = "SERVER_NOT_RUNNING: disposable Avorion + OrionAdminBridge is not running";
+} else if (failedCheck || report.consoleErrors.length > 0 || report.pageErrors.length > 0 || report.failedResponses.length > 0) {
+  report.status = "FAIL";
+  report.failedStep = "inventory detail assertions";
+  report.reason = failedCheck
+    ? `Inventory assertions failed at ${failedCheck.viewport}`
+    : "Browser console, page, or network errors were detected";
 }
 report.finishedAt = new Date().toISOString();
 report.durationMs = Date.now() - Date.parse(report.startedAt);
