@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: Avorion Web 管理中心 - 服务器管理 API
-  version: 0.12.0
+  version: 0.13.0
   description: >-
     服务器管理八个已确认页面的真实数据合同。任何不可取得的数据必须返回 null、unknown
     或明确错误，不允许使用前端默认值冒充真实结果。
@@ -68,6 +68,17 @@ paths:
           content:
             application/json:
               schema: {$ref: "#/components/schemas/WriteSafetyStatus"}
+  /health:
+    get:
+      tags: [Security]
+      operationId: getHealth
+      security: []
+      responses:
+        "200":
+          description: Server Agent 进程健康状态；不代表游戏服务端正在运行
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/HealthStatus"}
   /servers:
     get:
       tags: [Servers]
@@ -134,6 +145,134 @@ paths:
       parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
       responses:
         "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/inventory-catalog:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: query
+        in: query
+        schema: {type: string, maxLength: 128}
+      - name: itemType
+        in: query
+        schema: {type: string, enum: [turret, system-upgrade]}
+      - name: grantPolicy
+        in: query
+        schema: {type: string, enum: [verified-grantable, catalog-only, story-blocked]}
+      - name: offset
+        in: query
+        schema: {type: integer, minimum: 0, maximum: 100000, default: 0}
+      - name: limit
+        in: query
+        schema: {type: integer, minimum: 1, maximum: 100, default: 100}
+    get:
+      tags: [GameManagement]
+      operationId: listInventoryCatalog
+      description: 搜索本机索引的原版炮塔与系统插件目录；目录条目不等于可发放能力。
+      responses:
+        "200":
+          description: 物品目录分页
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/InventoryCatalogPage"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/inventory-icons:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: path
+        in: query
+        required: true
+        description: 仅允许 data/textures/icons/ 下的规范化相对路径
+        schema: {type: string, minLength: 1, maxLength: 256}
+    get:
+      tags: [GameManagement]
+      operationId: getInventoryIcon
+      responses:
+        "200":
+          description: 游戏客户端资源中的图标；带 private,max-age=3600 与 ETag
+          headers:
+            ETag:
+              schema: {type: string}
+          content:
+            image/png:
+              schema: {type: string, format: binary}
+            image/jpeg:
+              schema: {type: string, format: binary}
+            image/webp:
+              schema: {type: string, format: binary}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/management-bridge/hello:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [GameManagement]
+      operationId: getManagementBridgeCapabilities
+      description: 读取当前 OrionAdminBridge 协议版本与服务端能力清单。
+      responses:
+        "200":
+          description: 管理组件能力
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/BridgeHelloEnvelope"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/management-bridge/players:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: offset
+        in: query
+        schema: {type: integer, minimum: 0, maximum: 100000, default: 0}
+      - name: limit
+        in: query
+        schema: {type: integer, minimum: 1, maximum: 10, default: 10}
+    get:
+      tags: [Players]
+      operationId: listOnlinePlayers
+      description: 通过 OrionAdminBridge 读取当前在线玩家与可用星区位置。
+      responses:
+        "200":
+          description: 在线玩家分页
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/PlayerQueryEnvelope"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/management-bridge/alliances:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: offset
+        in: query
+        schema: {type: integer, minimum: 0, maximum: 100000, default: 0}
+      - name: limit
+        in: query
+        schema: {type: integer, minimum: 1, maximum: 10, default: 10}
+    get:
+      tags: [Alliances]
+      operationId: listAlliances
+      description: 通过 OrionAdminBridge 读取真实联盟摘要与聚合统计。
+      responses:
+        "200":
+          description: 联盟分页
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AllianceQueryEnvelope"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/management-bridge/alliance:
+    parameters:
+      - {$ref: "#/components/parameters/ServerId"}
+      - name: index
+        in: query
+        required: true
+        schema: {type: integer, minimum: 1, maximum: 100000}
+      - name: limit
+        in: query
+        schema: {type: integer, minimum: 1, maximum: 20, default: 20}
+    get:
+      tags: [Alliances]
+      operationId: getAllianceDetails
+      description: 通过 OrionAdminBridge 读取指定联盟摘要与最多 20 名成员。
+      responses:
+        "200":
+          description: 联盟详情
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/AllianceDetailEnvelope"}
         default: {$ref: "#/components/responses/Error"}
   /servers/{serverId}/management-bridge/players-known:
     parameters:
@@ -755,6 +894,30 @@ paths:
       responses:
         "202": {$ref: "#/components/responses/OperationAccepted"}
         default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/updates/rollback-points/latest:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Updates]
+      operationId: getLatestUpdateRollbackPoint
+      description: 只返回清单与清单哈希均验证通过、且属于当前更新环境的最新安全点。
+      responses:
+        "200":
+          description: 最新有效更新安全点；不存在时 available 为 false
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/UpdateRollbackPointAvailability"}
+        default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/updates/rollback-points:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    post:
+      tags: [Updates]
+      operationId: createUpdateRollbackPoint
+      x-risk: high
+      description: 停服后复制并逐文件校验服务端与 Galaxy，原子发布安全点；不执行更新、不恢复文件。
+      parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
+      responses:
+        "202": {$ref: "#/components/responses/OperationAccepted"}
+        default: {$ref: "#/components/responses/Error"}
   /servers/{serverId}/updates:
     parameters: [{$ref: "#/components/parameters/ServerId"}]
     post:
@@ -955,6 +1118,24 @@ paths:
             application/json:
               schema: {$ref: "#/components/schemas/DiagnosticRun"}
         default: {$ref: "#/components/responses/Error"}
+  /operations:
+    get:
+      tags: [Operations]
+      operationId: listOperations
+      parameters:
+        - name: limit
+          in: query
+          schema: {type: integer, minimum: 1, maximum: 100, default: 30}
+      responses:
+        "200":
+          description: 最近持久化操作
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: {type: array, items: {$ref: "#/components/schemas/Operation"}}
   /operations/{operationId}:
     parameters:
       - name: operationId
@@ -1013,6 +1194,13 @@ components:
         application/json:
           schema: {$ref: "#/components/schemas/OperationAccepted"}
   schemas:
+    HealthStatus:
+      type: object
+      required: [status, mode, sampledAt]
+      properties:
+        status: {type: string, const: ok}
+        mode: {type: string, const: r2-write-safety-locked}
+        sampledAt: {type: string, format: date-time}
     AdminSessionStatus:
       type: object
       required: [authenticated, mode]
@@ -1119,30 +1307,152 @@ components:
         xanion: {type: integer, minimum: 0, maximum: 9007199254740991}
         ogonite: {type: integer, minimum: 0, maximum: 9007199254740991}
         avorion: {type: integer, minimum: 0, maximum: 9007199254740991}
-    KnownPlayerIdentity:
+    BridgeReadMetadata:
       type: object
-      required: [index, name]
+      required: [protocolVersion, componentVersion, requestId, action, source, readOnly]
       properties:
-        index: {type: integer, minimum: 1, maximum: 100000}
-        name: {type: string, minLength: 1, maxLength: 512}
-    KnownPlayerQueryData:
-      type: object
-      required: [action, source, readOnly, total, offset, limit, items]
-      properties:
-        action: {type: string, const: players-known}
+        protocolVersion: {type: integer, const: 1}
+        componentVersion: {type: string, enum: [0.4.0, 0.5.0, 0.6.0, 0.7.0, 0.8.0, 0.9.0, 0.10.0]}
+        requestId: {type: string, pattern: "^[a-f0-9]{32}$"}
+        action: {type: string, enum: [hello, players, players-known, alliances, alliance]}
         source: {type: string, const: avorion-lua-api}
         readOnly: {type: boolean, const: true}
-        total: {type: integer, minimum: 0}
-        offset: {type: integer, minimum: 0}
-        limit: {type: integer, minimum: 1, maximum: 50}
-        items: {type: array, items: {$ref: "#/components/schemas/KnownPlayerIdentity"}}
-    KnownPlayerQueryEnvelope:
+    BridgeQueryEnvelope:
       type: object
       required: [sampledAt, freshness, data]
       properties:
         sampledAt: {type: string, format: date-time}
         freshness: {type: string, const: live}
-        data: {$ref: "#/components/schemas/KnownPlayerQueryData"}
+        data: {type: object}
+    BridgeHelloData:
+      allOf:
+        - {$ref: "#/components/schemas/BridgeReadMetadata"}
+        - type: object
+          required: [action, capabilities, serverSideOnly]
+          properties:
+            action: {type: string, const: hello}
+            capabilities:
+              type: array
+              uniqueItems: true
+              items: {type: string}
+            serverSideOnly: {type: boolean, const: true}
+    BridgeHelloEnvelope:
+      allOf:
+        - {$ref: "#/components/schemas/BridgeQueryEnvelope"}
+        - type: object
+          properties:
+            data: {$ref: "#/components/schemas/BridgeHelloData"}
+    BridgePlayer:
+      type: object
+      required: [index, name, online, x, y]
+      properties:
+        index: {type: integer, minimum: 1, maximum: 100000}
+        name: {type: string, minLength: 1, maxLength: 512}
+        online: {type: boolean, const: true}
+        x: {type: [integer, "null"], minimum: -500, maximum: 500}
+        y: {type: [integer, "null"], minimum: -500, maximum: 500}
+    PlayerQueryData:
+      allOf:
+        - {$ref: "#/components/schemas/BridgeReadMetadata"}
+        - type: object
+          required: [action, total, offset, limit, items]
+          properties:
+            action: {type: string, const: players}
+            total: {type: integer, minimum: 0}
+            offset: {type: integer, minimum: 0, maximum: 100000}
+            limit: {type: integer, minimum: 1, maximum: 10}
+            items: {type: array, maxItems: 10, items: {$ref: "#/components/schemas/BridgePlayer"}}
+    PlayerQueryEnvelope:
+      allOf:
+        - {$ref: "#/components/schemas/BridgeQueryEnvelope"}
+        - type: object
+          properties:
+            data: {$ref: "#/components/schemas/PlayerQueryData"}
+    KnownPlayerIdentity:
+      type: object
+      required: [index, name, online]
+      properties:
+        index: {type: integer, minimum: 1, maximum: 100000}
+        name: {type: string, minLength: 1, maxLength: 512}
+        online: {type: boolean}
+    KnownPlayerQueryData:
+      allOf:
+        - {$ref: "#/components/schemas/BridgeReadMetadata"}
+        - type: object
+          required: [action, total, offset, limit, items]
+          properties:
+            action: {type: string, const: players-known}
+            total: {type: integer, minimum: 0}
+            offset: {type: integer, minimum: 0, maximum: 100000}
+            limit: {type: integer, minimum: 1, maximum: 50}
+            items: {type: array, maxItems: 50, items: {$ref: "#/components/schemas/KnownPlayerIdentity"}}
+    KnownPlayerQueryEnvelope:
+      allOf:
+        - {$ref: "#/components/schemas/BridgeQueryEnvelope"}
+        - type: object
+          properties:
+            data: {$ref: "#/components/schemas/KnownPlayerQueryData"}
+    AllianceSummary:
+      type: object
+      required: [index, name, online, leaderIndex, leaderName, memberTotal, onlineMembers, homeX, homeY, numCrafts, numStations]
+      properties:
+        index: {type: integer, minimum: 1, maximum: 100000}
+        name: {type: string, minLength: 1, maxLength: 512}
+        online: {type: boolean}
+        leaderIndex: {type: integer, minimum: 1, maximum: 100000}
+        leaderName: {type: string, minLength: 1, maxLength: 512}
+        memberTotal: {type: integer, minimum: 0}
+        onlineMembers: {type: integer, minimum: 0}
+        homeX: {type: [integer, "null"], minimum: -500, maximum: 500}
+        homeY: {type: [integer, "null"], minimum: -500, maximum: 500}
+        numCrafts: {type: integer, minimum: 0}
+        numStations: {type: integer, minimum: 0}
+    AllianceQueryData:
+      allOf:
+        - {$ref: "#/components/schemas/BridgeReadMetadata"}
+        - type: object
+          required: [action, total, totalMembers, totalOnlineMembers, onlineAlliances, offset, limit, items]
+          properties:
+            action: {type: string, const: alliances}
+            total: {type: integer, minimum: 0}
+            totalMembers: {type: integer, minimum: 0}
+            totalOnlineMembers: {type: integer, minimum: 0}
+            onlineAlliances: {type: integer, minimum: 0}
+            offset: {type: integer, minimum: 0, maximum: 100000}
+            limit: {type: integer, minimum: 1, maximum: 10}
+            items: {type: array, maxItems: 10, items: {$ref: "#/components/schemas/AllianceSummary"}}
+    AllianceQueryEnvelope:
+      allOf:
+        - {$ref: "#/components/schemas/BridgeQueryEnvelope"}
+        - type: object
+          properties:
+            data: {$ref: "#/components/schemas/AllianceQueryData"}
+    AllianceMember:
+      type: object
+      required: [index, name, rank, online, x, y]
+      properties:
+        index: {type: integer, minimum: 1, maximum: 100000}
+        name: {type: string, minLength: 1, maxLength: 512}
+        rank: {type: string, minLength: 1, maxLength: 512}
+        online: {type: boolean}
+        x: {type: [integer, "null"], minimum: -500, maximum: 500}
+        y: {type: [integer, "null"], minimum: -500, maximum: 500}
+    AllianceDetailData:
+      allOf:
+        - {$ref: "#/components/schemas/BridgeReadMetadata"}
+        - type: object
+          required: [action, alliance, memberLimit, members]
+          properties:
+            action: {type: string, const: alliance}
+            alliance: {$ref: "#/components/schemas/AllianceSummary"}
+            memberLimit: {type: integer, minimum: 1, maximum: 20}
+            members: {type: array, maxItems: 20, items: {$ref: "#/components/schemas/AllianceMember"}}
+    AllianceDetailEnvelope:
+      allOf:
+        - {$ref: "#/components/schemas/BridgeQueryEnvelope"}
+        - type: object
+          properties:
+            data: {$ref: "#/components/schemas/AllianceDetailData"}
     PlayerAssetsSnapshot:
       type: object
       required: [playerIndex, playerName, online, credits, resources, sampledAt, freshness, source, componentVersion]
@@ -1155,7 +1465,35 @@ components:
         sampledAt: {type: string, format: date-time}
         freshness: {type: string, const: live}
         source: {type: string, const: avorion-lua-api}
-        componentVersion: {type: string, enum: [0.5.0, 0.6.0, 0.7.0, 0.8.0, 0.9.0]}
+        componentVersion: {type: string, enum: [0.5.0, 0.6.0, 0.7.0, 0.8.0, 0.9.0, 0.10.0]}
+    InventoryCatalogEntry:
+      type: object
+      required: [id, itemType, key, displayName, englishName, category, iconAvailable, grantPolicy, description]
+      properties:
+        id: {type: string}
+        itemType: {type: string, enum: [turret, system-upgrade]}
+        key: {type: string}
+        displayName: {type: string}
+        englishName: {type: string}
+        category: {type: string}
+        iconPath: {type: [string, "null"]}
+        iconAvailable: {type: boolean}
+        grantPolicy: {type: string, enum: [verified-grantable, catalog-only, story-blocked]}
+        script: {type: [string, "null"]}
+        weaponType: {type: [string, "null"]}
+        description: {type: string}
+    InventoryCatalogPage:
+      type: object
+      required: [total, offset, limit, items, indexedIconCount, iconSource, sampledAt, source]
+      properties:
+        total: {type: integer, minimum: 0}
+        offset: {type: integer, minimum: 0, maximum: 100000}
+        limit: {type: integer, minimum: 1, maximum: 100}
+        items: {type: array, maxItems: 100, items: {$ref: "#/components/schemas/InventoryCatalogEntry"}}
+        indexedIconCount: {type: integer, minimum: 0}
+        iconSource: {type: string}
+        sampledAt: {type: string, format: date-time}
+        source: {type: string}
     InventoryItemSummary:
       type: object
       required: [slot, amount, itemType, name, rarity, script, seed]
@@ -1167,6 +1505,27 @@ components:
         rarity: {type: [integer, "null"], minimum: -1, maximum: 5}
         script: {type: [string, "null"], minLength: 1, maxLength: 512}
         seed: {type: [string, "null"], minLength: 1, maxLength: 128}
+        title: {type: [string, "null"]}
+        icon: {type: [string, "null"]}
+        weaponType: {type: [string, "null"]}
+        weaponCategory: {type: [string, "null"]}
+        turretSlotType: {type: [string, "null"]}
+        material: {type: [integer, "null"]}
+        averageTech: {type: [integer, "null"]}
+        maxTech: {type: [integer, "null"]}
+        dps: {type: [number, "null"]}
+        damage: {type: [number, "null"]}
+        reach: {type: [number, "null"]}
+        fireRate: {type: [number, "null"]}
+        accuracy: {type: [number, "null"]}
+        turretSlots: {type: [integer, "null"]}
+        size: {type: [number, "null"]}
+        numWeapons: {type: [integer, "null"]}
+        armed: {type: [boolean, "null"]}
+        civil: {type: [boolean, "null"]}
+        coaxial: {type: [boolean, "null"]}
+        seeker: {type: [boolean, "null"]}
+        continuousBeam: {type: [boolean, "null"]}
     InventorySnapshot:
       type: object
       required: [ownerKind, ownerIndex, ownerName, online, total, occupiedSlots, maxSlots, offset, limit, items, sampledAt, freshness, source, componentVersion]
@@ -1184,7 +1543,7 @@ components:
         sampledAt: {type: string, format: date-time}
         freshness: {type: string, const: live}
         source: {type: string, const: avorion-lua-api}
-        componentVersion: {type: string, const: 0.9.0}
+        componentVersion: {type: string, enum: [0.9.0, 0.10.0]}
     SystemUpgradeGrantRequest:
       type: object
       required: [upgradeKey, rarity, confirmation]
@@ -1256,7 +1615,7 @@ components:
         outcome: {type: string, const: granted-and-verified}
         verifiedAt: {type: string, format: date-time}
         source: {type: string, const: avorion-lua-api}
-        componentVersion: {type: string, enum: [0.6.0, 0.7.0, 0.8.0, 0.9.0]}
+        componentVersion: {type: string, enum: [0.6.0, 0.7.0, 0.8.0, 0.9.0, 0.10.0]}
     AllianceResourceBalances:
       type: object
       required: [iron, titanium, naonite, trinium, xanion, ogonite, avorion]
@@ -1280,7 +1639,7 @@ components:
         sampledAt: {type: string, format: date-time}
         freshness: {type: string, const: live}
         source: {type: string, const: avorion-lua-api}
-        componentVersion: {type: string, enum: [0.7.0, 0.8.0, 0.9.0]}
+        componentVersion: {type: string, enum: [0.7.0, 0.8.0, 0.9.0, 0.10.0]}
     AllianceRewardResources:
       type: object
       required: [iron, titanium, naonite, trinium, xanion, ogonite, avorion]
@@ -1317,7 +1676,7 @@ components:
         outcome: {type: string, const: granted-and-verified}
         verifiedAt: {type: string, format: date-time}
         source: {type: string, const: avorion-lua-api}
-        componentVersion: {type: string, enum: [0.7.0, 0.8.0, 0.9.0]}
+        componentVersion: {type: string, enum: [0.7.0, 0.8.0, 0.9.0, 0.10.0]}
     PerformanceSnapshot:
       type: object
       required: [cpu, memory, disk, network, provenance]
@@ -1683,6 +2042,36 @@ components:
         files: {type: array, minItems: 2, maxItems: 2, items: {$ref: "#/components/schemas/VerifiedServerFile"}}
         checks: {type: array, items: {type: string}}
         verifiedAt: {type: string, format: date-time}
+    UpdateRollbackPointResult:
+      type: object
+      required: [pointId, storagePath, serverDirectory, galaxyDirectory, serverFileCount, galaxyFileCount, totalBytes, manifestSha256, verified, createdAt, verifiedAt, evidence]
+      properties:
+        pointId: {type: string, pattern: "^rollback_[A-Za-z0-9_-]+$"}
+        storagePath: {type: string}
+        serverDirectory: {type: string}
+        galaxyDirectory: {type: string}
+        serverFileCount: {type: integer, minimum: 0}
+        galaxyFileCount: {type: integer, minimum: 0}
+        totalBytes: {type: integer, format: int64, minimum: 0}
+        manifestSha256: {type: string, pattern: "^[A-F0-9]{64}$"}
+        installedBuildId: {type: [string, "null"], pattern: "^[0-9]+$"}
+        verified: {type: boolean, const: true}
+        createdAt: {type: string, format: date-time}
+        verifiedAt: {type: string, format: date-time}
+        evidence:
+          type: array
+          items:
+            type: string
+            enum: [server-stopped-before-copy, server-and-galaxy-copied, source-reparse-points-rejected, all-file-sha256-verified, manifest-sha256-verified, staging-directory-atomically-published]
+    UpdateRollbackPointAvailability:
+      type: object
+      required: [available, point]
+      properties:
+        available: {type: boolean}
+        point:
+          oneOf:
+            - {$ref: "#/components/schemas/UpdateRollbackPointResult"}
+            - {type: "null"}
     TaskKind:
       type: string
       enum: [scheduled-save, scheduled-safe-restart]
@@ -1764,7 +2153,7 @@ components:
       required: [operationId, status, acceptedAt]
       properties:
         operationId: {type: string}
-        status: {type: string, const: queued}
+        status: {type: string, enum: [queued, running, succeeded, failed, cancelled]}
         acceptedAt: {type: string, format: date-time}
     Operation:
       type: object
@@ -1780,6 +2169,7 @@ components:
         completedAt: {type: [string, "null"], format: date-time}
         result: {type: [object, "null"], additionalProperties: true}
         error: {oneOf: [{$ref: "#/components/schemas/ErrorDetail"}, {type: "null"}]}
+        request: {type: [object, "null"], additionalProperties: true}
     ErrorDetail:
       type: object
       required: [code, message, requestId, retryable]
