@@ -4,22 +4,26 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
-const { chromium } = require(
-  "C:/Users/wager/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
-);
+const { launchQaBrowser } = require("../../tools/qa-browser-runtime.cjs");
 
 const steamCmdOperationId = process.argv[2];
 if (!steamCmdOperationId) throw new Error("SteamCMD operation id is required");
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputDir = path.join(projectRoot, "qa", "avorion-existing-reuse");
 fs.mkdirSync(outputDir, { recursive: true });
-const serverExecutable = "D:/AvorionServer/bin/AvorionServer.exe";
-const serverRunner = "D:/AvorionServer/bin/ServerRunner.exe";
+const serverRoot = process.env.QA_AVORION_SERVER_ROOT;
+const steamCmdRoot = process.env.QA_STEAMCMD_ROOT;
+if (!serverRoot || !steamCmdRoot) {
+  throw new Error("QA_AVORION_SERVER_ROOT and QA_STEAMCMD_ROOT are required for the real existing-server fixture");
+}
+const serverExecutable = path.join(serverRoot, "bin", "AvorionServer.exe");
+const serverRunner = path.join(serverRoot, "bin", "ServerRunner.exe");
+const steamCmdExecutable = path.join(steamCmdRoot, "steamcmd.exe");
+const installIdentity = `${steamCmdExecutable}|${serverRoot}`.replaceAll("/", "\\").toLowerCase();
 const beforeExecutable = fs.readFileSync(serverExecutable);
 const beforeRunner = fs.readFileSync(serverRunner);
-const browser = await chromium.launch({
-  headless: true,
-  executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+const browser = await launchQaBrowser({
+  headless: true
 });
 const report = { screenshots: [], consoleErrors: [], pageErrors: [], checks: [] };
 
@@ -28,14 +32,14 @@ for (const viewport of [
   { name: "1440x900", width: 1440, height: 900 },
 ]) {
   const context = await browser.newContext({ viewport, locale: "zh-CN", timezoneId: "Asia/Shanghai", reducedMotion: "reduce" });
-  await context.addInitScript(() => {
-    window.sessionStorage.setItem("avorion.install.steamcmd", "D:\\steamcmd");
-    window.sessionStorage.setItem("avorion.install.server", "D:\\AvorionServer");
+  await context.addInitScript(({ steamCmdRoot, serverRoot, installIdentity }) => {
+    window.sessionStorage.setItem("avorion.install.steamcmd", steamCmdRoot);
+    window.sessionStorage.setItem("avorion.install.server", serverRoot);
     window.sessionStorage.setItem("avorion.install.server.idempotency", JSON.stringify({
-      identity: "d:\\steamcmd\\steamcmd.exe|d:\\avorionserver",
+      identity: installIdentity,
       key: "avorion-stale-known-failure-key",
     }));
-  });
+  }, { steamCmdRoot, serverRoot, installIdentity });
   const page = await context.newPage();
   page.on("console", (message) => { if (message.type() === "error") report.consoleErrors.push(`${viewport.name}: ${message.text()}`); });
   page.on("pageerror", (error) => report.pageErrors.push(`${viewport.name}: ${error.message}`));

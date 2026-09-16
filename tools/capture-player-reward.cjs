@@ -1,15 +1,14 @@
 const fs = require("node:fs");
 const path = require("node:path");
-const { chromium } = require("C:/Users/wager/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright");
+const { launchQaBrowser } = require("./qa-browser-runtime.cjs");
 
-const projectRoot = "E:/OrionAdmin";
+const projectRoot = path.resolve(__dirname, "..");
 const outputDirectory = path.join(projectRoot, ".e2e");
 
 (async () => {
   fs.mkdirSync(outputDirectory, { recursive: true });
-  const browser = await chromium.launch({
-    headless: true,
-    executablePath: "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe",
+  const browser = await launchQaBrowser({
+    headless: true
   });
   const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
   const consoleErrors = [];

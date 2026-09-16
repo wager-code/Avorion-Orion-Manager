@@ -4,17 +4,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
-const { chromium } = require(
-  "C:/Users/wager/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
-);
+const { launchQaBrowser } = require("../../tools/qa-browser-runtime.cjs");
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputDir = path.join(projectRoot, "qa", "inventory-catalog");
 fs.mkdirSync(outputDir, { recursive: true });
 
-const browser = await chromium.launch({
-  headless: true,
-  executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+const browser = await launchQaBrowser({
+  headless: true
 });
 const report = { screenshots: [], checks: [], consoleErrors: [], pageErrors: [], failedResponses: [], failedCatalogResponses: [] };
 

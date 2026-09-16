@@ -4,18 +4,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
-const { chromium } = require(
-  "C:/Users/wager/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
-);
+const { launchQaBrowser } = require("../../tools/qa-browser-runtime.cjs");
 
 const operationId = process.argv[2];
 if (!operationId) throw new Error("operation id is required");
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repositoryRoot = path.resolve(projectRoot, "..");
+const installTarget = process.env.QA_STEAMCMD_INSTALL_TARGET || path.join(repositoryRoot, "backend", ".qa-steamcmd-install");
 const outputDir = path.join(projectRoot, "qa", "steamcmd-install");
 fs.mkdirSync(outputDir, { recursive: true });
-const browser = await chromium.launch({
-  headless: true,
-  executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+const browser = await launchQaBrowser({
+  headless: true
 });
 const report = { screenshots: [], consoleErrors: [], pageErrors: [], checks: [] };
 
@@ -29,7 +28,7 @@ for (const viewport of [
   page.on("pageerror", (error) => report.pageErrors.push(`${viewport.name}: ${error.message}`));
   await page.goto(`http://127.0.0.1:4173/server/update?flow=install&step=2&operation=${encodeURIComponent(operationId)}`, { waitUntil: "domcontentloaded", timeout: 10000 });
   await page.getByText("STEAMCMD_DOWNLOAD_FAILED", { exact: true }).waitFor();
-  const targetAbsent = !fs.existsSync("D:/管理系统开发/backend/.qa-steamcmd-install");
+  const targetAbsent = !fs.existsSync(installTarget);
   const bodyMetrics = await page.evaluate(() => ({
     horizontalOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
     verticalScroll: document.documentElement.scrollHeight > document.documentElement.clientHeight,

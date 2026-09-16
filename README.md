@@ -19,7 +19,7 @@ React / TypeScript 前端、.NET 8 API 与 Agent、SQLite、专用服务端 Lua 
 
 ## 运行与验证
 
-见 [环境准备](03_NEW_COMPUTER_SETUP.md)。准备入口为 `01-prepare.cmd`，启动入口为 `02-start.cmd`；游戏运行环境需单独核实。
+见 [环境准备](03_NEW_COMPUTER_SETUP.md)。准备入口为 `01-prepare.cmd`，启动入口为 `02-start.cmd`；游戏运行环境需单独核实。浏览器与视觉 QA 的可移植运行方式见 [QA 指南](docs/development/QA.md)。
 
 ## 当前功能范围
 
