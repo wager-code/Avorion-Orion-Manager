@@ -19,7 +19,7 @@ React / TypeScript 前端、.NET 8 API 与 Agent、SQLite、专用服务端 Lua 
 
 ## 运行与验证
 
-见 [环境准备](03_NEW_COMPUTER_SETUP.md)。准备入口为 `01-prepare.cmd`，启动入口为 `02-start.cmd`；游戏运行环境需单独核实。浏览器与视觉 QA 的可移植运行方式见 [QA 指南](docs/development/QA.md)。
+见 [环境准备](03_NEW_COMPUTER_SETUP.md)。源码准备入口为 `01-prepare.cmd`，开发启动入口为 `02-start.cmd`；`tools/publish-windows.ps1` 生成不依赖 Node/.NET 的 win-x64 自包含生产包。游戏运行环境需单独核实。浏览器与视觉 QA 的可移植运行方式见 [QA 指南](docs/development/QA.md)。
 
 ## 当前功能范围
 
@@ -37,4 +37,4 @@ React / TypeScript 前端、.NET 8 API 与 Agent、SQLite、专用服务端 Lua 
 
 首次源码与规划上传、仓库卫生清理、模块拆分、测试 fixture 整理以及 PR #11～#14 的配置反馈、导航真实性、API 合同和 QA 可移植性改进均已进入 `main`；现有 GitHub Actions 会验证架构边界、OpenAPI 漂移、QA 脚本语法、.NET 构建、后端验证、前端类型检查、生产构建和 Sites 测试。
 
-当前按 `PLAN.md` 完成 P0 的页面与隔离 Galaxy 真实验收；随后依次推进可重复 Windows 发布/服务化、OrionAdminBridge 安装维护、完整更新与安全点恢复，再进入普通炮塔、舰船、活动和星区建设。
+P0 页面与隔离 Galaxy 真实验收已完成；当前推进可重复 Windows 发布/服务化，随后依次完成 OrionAdminBridge 安装维护、完整更新与安全点恢复，再进入普通炮塔、舰船、活动和星区建设。

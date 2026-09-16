@@ -1,0 +1,40 @@
+name: Windows package
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: frontend-prototype/pnpm-lock.yaml
+
+      - name: Build and smoke-test portable package
+        shell: pwsh
+        run: ./tools/publish-windows.ps1 -OutputPath "${{ runner.temp }}\OrionAdmin-win-x64" -SmokeTest
+
+      - name: Upload portable package
+        uses: actions/upload-artifact@v4
+        with:
+          name: OrionAdmin-win-x64
+          path: ${{ runner.temp }}\OrionAdmin-win-x64
+          if-no-files-found: error
+          retention-days: 14

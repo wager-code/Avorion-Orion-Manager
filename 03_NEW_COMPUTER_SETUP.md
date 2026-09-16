@@ -14,6 +14,20 @@ Windows 10/11 x64；Node.js 24.x；.NET 8 SDK（SDK 与运行时都需要，只�
 - 如果端口已占用，脚本报错而非杀死未知进程。先关闭重复启动窗口或由开发者检查。
 - `.local/` 存放新电脑的运行日志和管理数据库，不应提交或打入源码包。
 
+## 生产便携包
+
+开发机执行：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\publish-windows.ps1 -SmokeTest
+```
+
+脚本会构建前端，并把 .NET API 发布为 `win-x64` 自包含目录 `artifacts\OrionAdmin-win-x64`。目标电脑只需 Windows 10/11 x64，不需要 Node.js 或 .NET；复制整个目录后运行 `Start-OrionAdmin.cmd`，浏览器访问 `http://127.0.0.1:5088/server/control`。
+
+发布包使用单进程同源模式：API 同时提供 `/api` 与生产前端，运行数据保存在包内 `data\`。启动窗口必须保持开启；关闭前如果 Avorion 游戏服正在运行，先在控制页执行安全关闭，再按 Ctrl+C 停止管理程序。发布脚本拒绝覆盖已有输出目录，也不会停止占用端口的未知进程。
+
+GitHub 的 `Windows package` 工作流可手动生成同样的自包含 artifact；CI 会实际启动发布目录，验证健康接口与 SPA 路由后再允许合并。
+
 ## 手动验证
 
 在项目根目录的 PowerShell 中执行：
@@ -28,8 +42,7 @@ npm run build
 npm run test:sites
 ```
 
-生产前端构建保留 worker/Sites 所需文件，仅为现有构建完整性；`.openai/hosting.json` 只有空资源声明，没有绑定外部项目，本包不会发布网站。
-不建议直接使用 `vite preview` 联调，因为当前 API 代理定义在开发服务器配置。用启动脚本或 Vite dev server 联调。
+生产前端构建保留 worker/Sites 所需文件；`.openai/hosting.json` 只有空资源声明，没有绑定外部项目，本包不会发布网站。源码联调继续使用 `02-start.cmd`，生产便携包由 API 同源托管前端，不使用 Vite。
 
 ## 修改端口 / 隔离冒烟验证
 
