@@ -65,4 +65,22 @@ foreach ($module in @('protocol.lua', 'dispatch.lua', 'players.lua', 'playerasse
     Require-File "management-mod\OrionAdminBridge\data\scripts\lib\orionadmin\$module" | Out-Null
 }
 
+$qaBrowserRuntime = Require-File 'tools\qa-browser-runtime.cjs'
+& node --check $qaBrowserRuntime
+if ($LASTEXITCODE -ne 0) { throw 'tools/qa-browser-runtime.cjs contains invalid JavaScript.' }
+
+$qaScripts = @(
+    Get-ChildItem -LiteralPath (Join-Path $projectRoot 'frontend-prototype\scripts') -Filter '*.mjs' -File
+    Get-ChildItem -LiteralPath (Join-Path $projectRoot 'tools') -Filter 'capture-*.cjs' -File
+)
+foreach ($script in $qaScripts) {
+    & node --check $script.FullName
+    if ($LASTEXITCODE -ne 0) { throw "$($script.FullName) contains invalid JavaScript." }
+    $source = Get-Content -LiteralPath $script.FullName -Raw
+    if ($source -match '(?i)node_modules[\\/]playwright' -or
+        $source -match '(?i)executablePath\s*:\s*[''"][A-Za-z]:[\\/]') {
+        throw "$($script.FullName) hard-codes a local Playwright or browser path. Use tools/qa-browser-runtime.cjs."
+    }
+}
+
 Write-Host 'PASS: modular-monolith architecture boundaries are intact.'

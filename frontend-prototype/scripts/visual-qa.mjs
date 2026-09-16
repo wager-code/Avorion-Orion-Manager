@@ -4,9 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
-const { chromium } = require(
-  "C:/Users/wager/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright",
-);
+const { launchQaBrowser } = require("../../tools/qa-browser-runtime.cjs");
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputDir = path.join(projectRoot, "qa", "screenshots");
@@ -20,9 +18,8 @@ const viewports = [
   { name: "1536x864-at-125pct", width: 1536, height: 864, dpr: 1.25 },
 ];
 
-const browser = await chromium.launch({
-  headless: true,
-  executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+const browser = await launchQaBrowser({
+  headless: true
 });
 const report = { screenshots: [], consoleErrors: [], pageErrors: [], checks: [] };
 
