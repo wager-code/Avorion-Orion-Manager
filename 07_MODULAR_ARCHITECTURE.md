@@ -1,6 +1,6 @@
 # OrionAdmin 模块化单体架构
 
-更新时间：2026-09-10
+更新时间：2026-09-16
 
 ## 目标
 
@@ -57,9 +57,9 @@ management-mod/OrionAdminBridge/data/scripts/
 
 奖励中心后端由 `Endpoints/GameManagementEndpoints.cs` 承担 HTTP 合同，由 `Operations/RewardBatchWorker.cs` 编排持久化父批次和逐目标子操作；游戏邮件能力经 `Core/Abstractions/IPlayerMailService.cs` 进入 Agent，不由端点直接拼 RCON 命令。
 
-Inventory 后端由 `Endpoints/InventoryEndpoints.cs`、`Operations/InventoryGrantWorker.cs` 和 Core 的 `IInventoryService` 组成；前端只复用 `components/InventoryPanel.tsx` 嵌入玩家/联盟既有详情，不创建第二套玩家或联盟页面。MOD 内 `inventory.lua` 独立维护固定原版脚本清单、容量/槽位读取、请求 Seed 与游戏实际 Seed 的关联以及精确 +1 复核。
+Inventory 后端由 `Endpoints/InventoryEndpoints.cs`、`Operations/InventoryGrantWorker.cs` 和 Core 的 `IInventoryService` 组成；前端只复用 `features/inventory/InventoryWorkbench.tsx` 嵌入玩家/联盟既有详情，不创建第二套玩家或联盟页面。MOD 内 `inventory.lua` 独立维护固定原版脚本清单、容量/槽位读取、请求 Seed 与游戏实际 Seed 的关联以及精确 +1 复核。
 
-物品目录是同一 Inventory 领域内的只读子模块：`Core/Models/InventoryCatalogModels.cs` 定义目录与路径策略，`IInventoryCatalogService` 隔离 Agent，`Agent/InventoryCatalogService.cs` 负责固定定义、客户端发现和安全图标索引，`Endpoints/InventoryCatalogEndpoints.cs` 只暴露受会话保护的目录/图标合同。前端由 `InventoryCatalogDialog.tsx` 与 `GameItemIcon.tsx` 复用到现有 `InventoryPanel`，没有新增页面，也没有复制玩家在线状态或资产信息。
+物品目录是同一 Inventory 领域内的只读子模块：`Core/Models/InventoryCatalogModels.cs` 定义目录与路径策略，`IInventoryCatalogService` 隔离 Agent，`Agent/InventoryCatalogService.cs` 负责固定定义、客户端发现和安全图标索引，`Endpoints/InventoryCatalogEndpoints.cs` 只暴露受会话保护的目录/图标合同。前端目录选择、图标和发放状态都收敛在 `features/inventory/InventoryWorkbench.tsx`，没有新增页面，也没有复制玩家在线状态或资产信息。
 
 ## 新增功能的固定接入方法
 
@@ -89,12 +89,13 @@ Inventory 后端由 `Endpoints/InventoryEndpoints.cs`、`Operations/InventoryGra
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\tools\check-architecture.ps1
-dotnet build .\backend\AvorionAdmin.sln --no-restore
-dotnet run --project .\backend\tests\AvorionAdmin.Tests --no-build
+dotnet build .\backend\AvorionAdmin.sln -c Release
+dotnet run --project .\backend\tests\AvorionAdmin.Tests\AvorionAdmin.Tests.csproj -c Release
 cd .\frontend-prototype
+pnpm install --frozen-lockfile
 pnpm typecheck
-pnpm test:sites
 pnpm build
+pnpm test:sites
 ```
 
-`01-prepare.cmd` 已自动先执行架构边界检查。边界检查只防止入口文件再次膨胀，不能替代业务测试和真实服务器验证。
+`01-prepare.cmd` 已自动先执行架构边界检查。边界检查同时验证必需模块以及浏览器 QA 脚本的语法和路径可移植性；后端验证套件另外检查 OpenAPI 路径、schema 引用与 operationId 漂移。它们仍不能替代真实服务器验证。浏览器 QA 的环境变量与 fixture 见 `docs/development/QA.md`。
