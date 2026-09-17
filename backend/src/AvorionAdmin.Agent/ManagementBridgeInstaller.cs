@@ -84,7 +84,7 @@ public sealed class ManagementBridgeInstaller : IManagementBridgeInstaller
             if (!File.Exists(configPath))
             {
                 Directory.CreateDirectory(backupRoot);
-                var normalized = target.Replace('\\', '/').Replace(""", "\\"", StringComparison.Ordinal);
+                var normalized = target.Replace('\\', '/').Replace("\"", "\\\"", StringComparison.Ordinal);
                 var content = $"scriptCachingEnabled = true{Environment.NewLine}modLocation = \"\"{Environment.NewLine}forceEnabling = false{Environment.NewLine}{Environment.NewLine}mods ={Environment.NewLine}{{{Environment.NewLine}    {{path = \"{normalized}\"}}{Environment.NewLine}}}{Environment.NewLine}{Environment.NewLine}allowed ={Environment.NewLine}{{{Environment.NewLine}}}{Environment.NewLine}";
                 WriteAtomic(configPath, Encoding.UTF8.GetBytes(content), safeId);
                 configurationCreated = true;
