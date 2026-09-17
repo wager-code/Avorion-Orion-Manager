@@ -216,4 +216,3 @@
 - `README.md`、`docs/development/PLAN.md`、`docs/development/HANDOFF.md`、`docs/evidence/` 和 `design-qa.md`：当前源码状态、正式服阶段证据和页面 QA。
 
 维护规则：每实现一个功能，先在本文件把对应项从“已确认可开发”移到“已支持”，同时写明实际测试范围；若只完成 UI、Mock、合同或单元测试，不得升级为“已支持”。
-
