@@ -133,4 +133,3 @@ if ($SmokeTest) {
 }
 
 Write-Host "Windows package ready: $outputFullPath"
-
