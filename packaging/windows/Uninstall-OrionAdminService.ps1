@@ -21,7 +21,7 @@ $listenUrl = "http://127.0.0.1:$Port"
 $configuration = [pscustomobject]@{
     mode = if ($ValidateOnly) { 'validate-only' } else { 'uninstall' }
     serviceName = $ServiceName
-    statusUrl = "$listenUrl/api/v1/servers/local/status"
+    statusUrl = "$listenUrl/api/v1/servers"
     dataPolicy = 'preserve'
     unverifiedStopRequires = '-ConfirmGameServerStopped'
 }
@@ -44,7 +44,11 @@ if ($null -eq $service) {
 if ($service.Status -ne [System.ServiceProcess.ServiceControllerStatus]::Stopped) {
     $serverStatus = $null
     try {
-        $serverStatus = Invoke-RestMethod "$listenUrl/api/v1/servers/local/status" -TimeoutSec 5
+        $serverList = Invoke-RestMethod "$listenUrl/api/v1/servers" -TimeoutSec 5
+        $serverStatus = @($serverList.items) | Select-Object -First 1
+        if ($null -eq $serverStatus) {
+            throw 'OrionAdmin returned no managed server status.'
+        }
     } catch {
         if (-not $ConfirmGameServerStopped) {
             throw "Could not verify the Avorion game server state at $listenUrl. Safely stop the game server first, then retry with -ConfirmGameServerStopped only after verifying it is stopped."

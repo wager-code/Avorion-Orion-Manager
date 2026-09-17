@@ -67,7 +67,7 @@ try {
         Copy-Item -LiteralPath (Join-Path $packageTemplate $file) -Destination (Join-Path $staging $file)
     }
 
-    foreach ($required in @('AvorionAdmin.Api.exe', 'wwwroot\index.html', 'Start-OrionAdmin.cmd', 'Open-OrionAdmin.ps1', 'README.txt')) {
+    foreach ($required in @('AvorionAdmin.Api.exe', 'wwwroot\index.html', 'Start-OrionAdmin.cmd', 'Open-OrionAdmin.ps1', 'Install-OrionAdminService.ps1', 'Uninstall-OrionAdminService.ps1', 'README.txt')) {
         if (-not (Test-Path -LiteralPath (Join-Path $staging $required) -PathType Leaf)) {
             throw "Published package is missing: $required"
         }
