@@ -200,6 +200,19 @@ paths:
             image/webp:
               schema: {type: string, format: binary}
         default: {$ref: "#/components/responses/Error"}
+  /servers/{serverId}/management-bridge/status:
+    parameters: [{$ref: "#/components/parameters/ServerId"}]
+    get:
+      tags: [Updates]
+      operationId: getManagementBridgeInstallationStatus
+      description: 读取随包与 Galaxy 中 OrionAdminBridge 的版本、文件一致性和 modconfig.lua 启用状态；不修改文件。
+      responses:
+        "200":
+          description: 管理组件安装状态
+          content:
+            application/json:
+              schema: {$ref: "#/components/schemas/ManagementBridgeStatus"}
+        default: {$ref: "#/components/responses/Error"}
   /servers/{serverId}/management-bridge/hello:
     parameters: [{$ref: "#/components/parameters/ServerId"}]
     get:
@@ -775,7 +788,7 @@ paths:
         始终原子写入不含秘密的受控启动档案；只有已有 Galaxy 的 server.ini 存在且结构无歧义时，
         才原子更新已验证的 Networking.port/rconIp/rconPassword/rconPort 与
         Administration.maxPlayers/name。新 Galaxy 不伪造 server.ini，RCON 延后到首次初始化后。
-        游戏监听地址、独立 Query 端口和防火墙均不在本接口中执行；自定义管理 MOD 不属于产品能力。
+        游戏监听地址、独立 Query 端口和防火墙均不在本接口中执行；仅在明确选择时安装并校验随包 OrionAdminBridge。
       parameters: [{$ref: "#/components/parameters/CsrfToken"}, {$ref: "#/components/parameters/IdempotencyKey"}]
       requestBody:
         required: true
@@ -1815,10 +1828,8 @@ components:
         allowFirewallChange: {type: boolean}
         installManagementMod:
           type: boolean
-          enum: [false]
           default: false
-          deprecated: true
-          description: 仅为旧客户端兼容保留；服务端始终按 false 处理，不安装或植入自定义 MOD。
+          description: 明确选择后，在停服状态安装或升级本软件随包 OrionAdminBridge；现有 modconfig.lua 不会被覆盖。
     ServerSetupDraftConfiguration:
       allOf:
         - {$ref: "#/components/schemas/ServerSetupDraftInput"}
@@ -1892,8 +1903,38 @@ components:
           type: array
           items:
             type: string
-            enum: [game-listen-address, steam-query-port, first-galaxy-initialization, rcon-until-first-initialization, windows-firewall]
+            enum: [game-listen-address, steam-query-port, first-galaxy-initialization, rcon-until-first-initialization, windows-firewall, management-mod-until-first-initialization, management-mod-enable]
         appliedAt: {type: string, format: date-time}
+        managementBridge:
+          oneOf:
+            - {$ref: "#/components/schemas/ManagementBridgeInstallationResult"}
+            - {type: "null"}
+    ManagementBridgeInstallationResult:
+      type: object
+      required: [version, targetDirectory, manifestSha256, configurationCreated, configured, restartRequired, installedAt]
+      properties:
+        version: {type: string}
+        targetDirectory: {type: string}
+        manifestSha256: {type: string, pattern: "^[A-F0-9]{64}$"}
+        backupDirectory: {type: [string, "null"]}
+        configurationCreated: {type: boolean}
+        configured: {type: boolean}
+        restartRequired: {type: boolean}
+        installedAt: {type: string, format: date-time}
+    ManagementBridgeStatus:
+      type: object
+      required: [packageAvailable, installed, current, configured, state, issues, checkedAt]
+      properties:
+        packageAvailable: {type: boolean}
+        packageVersion: {type: [string, "null"]}
+        installed: {type: boolean}
+        installedVersion: {type: [string, "null"]}
+        current: {type: boolean}
+        configured: {type: boolean}
+        targetDirectory: {type: [string, "null"]}
+        state: {type: string, enum: [galaxy-unconfigured, galaxy-invalid, missing, outdated-or-modified, installed-not-enabled, current]}
+        issues: {type: array, items: {type: string}}
+        checkedAt: {type: string, format: date-time}
     ServerInitializationResult:
       type: object
       required: [mode, processId, galaxyDirectory, serverIniPath, consoleSaveConfirmed, consoleStopConfirmed, rconConfigured, rconAuthenticated, healthEvidence, deferredActions, startedAt, completedAt]

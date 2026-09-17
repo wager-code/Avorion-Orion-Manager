@@ -163,7 +163,8 @@ public sealed record ServerSetupApplicationResult(
     bool RconConfigured,
     string ConfigurationSha256,
     IReadOnlyList<string> DeferredActions,
-    DateTimeOffset AppliedAt);
+    DateTimeOffset AppliedAt,
+    ManagementBridgeInstallationResult? ManagementBridge = null);
 
 public sealed record SteamCmdInstallRequest(
     string InstallDirectory,
@@ -203,3 +204,25 @@ public sealed record AvorionServerInstallationResult(
     string ExecutableSha256,
     string RunnerSha256,
     DateTimeOffset VerifiedAt);
+
+public sealed record ManagementBridgeStatus(
+    bool PackageAvailable,
+    string? PackageVersion,
+    bool Installed,
+    string? InstalledVersion,
+    bool Current,
+    bool Configured,
+    string? TargetDirectory,
+    string State,
+    IReadOnlyList<string> Issues,
+    DateTimeOffset CheckedAt);
+
+public sealed record ManagementBridgeInstallationResult(
+    string Version,
+    string TargetDirectory,
+    string ManifestSha256,
+    string? BackupDirectory,
+    bool ConfigurationCreated,
+    bool Configured,
+    bool RestartRequired,
+    DateTimeOffset InstalledAt);

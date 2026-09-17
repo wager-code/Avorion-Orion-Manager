@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILogReader, LogReader>();
         services.AddSingleton<IFileSystemBrowser, FileSystemBrowser>();
         services.AddSingleton<IUpdateEnvironmentService, UpdateEnvironmentService>();
+        services.AddSingleton<IManagementBridgeInstaller, ManagementBridgeInstaller>();
         services.AddSingleton<IUpdateInspectionService, UpdateInspectionService>();
         services.AddSingleton<IUpdateRollbackPointService, UpdateRollbackPointService>();
         services.AddSingleton<ISteamCmdArchiveSource, OfficialSteamCmdArchiveSource>();

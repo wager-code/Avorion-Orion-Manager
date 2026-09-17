@@ -87,3 +87,14 @@ public interface IAvorionServerInstaller
         Func<double, string, CancellationToken, Task> reportProgressAsync,
         CancellationToken cancellationToken = default);
 }
+
+public interface IManagementBridgeInstaller
+{
+    Task<ManagementBridgeStatus> InspectAsync(
+        string? galaxyDirectory,
+        CancellationToken cancellationToken = default);
+    Task<ManagementBridgeInstallationResult> InstallAsync(
+        string galaxyDirectory,
+        string operationId,
+        CancellationToken cancellationToken = default);
+}

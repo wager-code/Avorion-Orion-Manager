@@ -25,6 +25,13 @@ public static class ManagementBridgeEndpoints
 {
     public static WebApplication MapManagementBridgeEndpoints(this WebApplication app)
     {
+        app.MapGet("/api/v1/servers/{serverId}/management-bridge/status", (Func<string, HttpContext, IManagementBridgeInstaller, IServerSetupDraftStore, ServerNodeOptionsAccessor, CancellationToken, Task<IResult>>)async delegate(string serverId, HttpContext context, IManagementBridgeInstaller installer, IServerSetupDraftStore drafts, ServerNodeOptionsAccessor node, CancellationToken cancellationToken)
+        {
+            if (!node.Matches(serverId)) return ApiErrors.Create(context, 404, "SERVER_NOT_FOUND", "未找到服务器节点");
+            context.Response.Headers.CacheControl = "no-store";
+            var draft = await drafts.GetAsync(cancellationToken);
+            return Results.Ok(await installer.InspectAsync(draft?.GalaxyDirectory, cancellationToken));
+        });
         app.MapGet("/api/v1/servers/{serverId}/management-bridge/{query}", (Func<string, string, int?, int?, int?, HttpContext, ManagedServerControlService, ServerNodeOptionsAccessor, AdminSessionService, CancellationToken, Task<IResult>>)async delegate(string serverId, string query, int? offset, int? limit, int? index, HttpContext context, ManagedServerControlService control, ServerNodeOptionsAccessor node, AdminSessionService sessions, CancellationToken cancellationToken)
         {
         	if (!node.Matches(serverId))

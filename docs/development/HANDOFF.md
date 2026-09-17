@@ -1,7 +1,7 @@
 # 当前交接
 
 最后更新：2026-09-17。
-当前重点：REL-02（Windows 服务实机验收）。
+当前重点：REL-04（完整更新与安全点恢复）。
 目标分支：`main`；所有工作继续通过独立分支、CI 和 Pull Request 合并。
 
 ## 用户当前目标
@@ -27,14 +27,16 @@
 
 服务器安装、初始化、控制、性能、内存与星区、自动任务、备份恢复、日志、诊断、更新检查/校验/安全点，以及玩家、联盟、奖励和受限 Inventory 已有真实代码与自动验证。一级导航只保留有真实页面的服务器、玩家、联盟和游戏管理。
 
-完整服务器更新执行、从安全点恢复和 OrionAdminBridge 安装维护仍未开放。REL-02 已实现便携包和服务化增量：API 同源托管 SPA，发布脚本生成无需 Node/.NET 的 win-x64 自包含目录；Windows 服务延迟自动启动且仅监听本机，数据保存在 `%ProgramData%\\OrionAdmin\\data`，卸载会先确认游戏生命周期并保留数据，日志进入 Windows Application Event Log。CI 会启动成品验证健康、前端路由，并执行安装/卸载脚本的无副作用校验模式。
+完整服务器更新执行和从安全点恢复仍未开放。REL-01 已实现 OrionAdminBridge 的明确选择、停服安装/升级、旧版本备份、清单复核、状态读取和更新页连接反馈；不会覆盖已有 modconfig，也不操作第三方 MOD。REL-02 已实现便携包和服务化增量：API 同源托管 SPA，发布脚本生成无需 Node/.NET 的 win-x64 自包含目录；Windows 服务延迟自动启动且仅监听本机，数据保存在 `%ProgramData%\\OrionAdmin\\data`，卸载会先确认游戏生命周期并保留数据，日志进入 Windows Application Event Log。CI 会启动成品验证健康、前端路由，并执行安装/卸载脚本的无副作用校验模式。
 
 2026-09-16 已完成 M0-02～M0-05：更新预检反馈、共享 Inventory、全站空态/降级态和隔离 Galaxy 真实闭环均有当前证据。`E:\\AvorionServer` + `E:\\MyGalaxy` 已完成真实预检、原子配置、两次受控启动、Bridge 0.10.0/玩家/联盟/Inventory 读取、`/save` 与两次安全停服；所有启动均通过 RCON 认证，所有停服均确认 `/stop` 和精确 PID 退出，未使用强制终止。服务器当前保持 stopped，原 `server.ini` 备份位于 Galaxy 的 `.orionadmin-backups`。
 
+2026-09-17 已完成 REL-01 真实升级验收：在服务器 stopped 时把既有 Bridge 移入 `E:\\MyGalaxy\\.orionadmin-backups\\management-bridge`，发布当前随包 0.10.0 并复核完整文件清单；既有 `modconfig.lua` SHA-256 前后相同。随后受控启动确认状态为 `current`、配置已启用且 hello 返回 live / protocol 1，再通过 RCON `/save`、`/stop` 安全停服；最终服务器保持 stopped，未使用强制终止。
+
 ## 下一步顺序
 
-1. 完成 REL-02 实机验收：从 CI artifact 在管理员环境真实安装服务，验证延迟自动启动、事件日志、重启后可用、安全卸载和 `%ProgramData%\\OrionAdmin\\data` 升级保留；游戏服必须先安全停止，不允许强杀。
-2. 验收通过后推进 REL-01 OrionAdminBridge 安装维护，再完成 REL-04 更新/安全点恢复闭环。
+1. 完成 REL-04 更新/安全点恢复闭环；先收敛固定 SteamCMD 更新、验证失败自动恢复与审计状态机。
+2. REL-02 的真实 Windows SCM 注册、事件日志与升级保留数据验收仍待取得合并后 artifact；浏览器工作流控制不可用时不得伪报完成。
 3. 正式运行基础完成后进入 M1 普通炮塔预览与单件发放，再推进舰船、活动和星区建设。
 
 历史测试通过不能替代当前提交的 CI；源码存在也不能替代真实游戏验收。
