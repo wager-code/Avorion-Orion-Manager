@@ -63,7 +63,7 @@ try {
     $wwwroot = Join-Path $staging 'wwwroot'
     New-Item -ItemType Directory -Path $wwwroot -Force | Out-Null
     Copy-Item -Path (Join-Path $frontendDist '*') -Destination $wwwroot -Recurse -Force
-    foreach ($file in @('Start-OrionAdmin.cmd', 'Open-OrionAdmin.ps1', 'README.txt')) {
+    foreach ($file in @('Start-OrionAdmin.cmd', 'Open-OrionAdmin.ps1', 'Install-OrionAdminService.ps1', 'Uninstall-OrionAdminService.ps1', 'README.txt')) {
         Copy-Item -LiteralPath (Join-Path $packageTemplate $file) -Destination (Join-Path $staging $file)
     }
 
@@ -93,6 +93,9 @@ if ($SmokeTest) {
     $previousData = $env:Avorion__DataDirectory
     $process = $null
     try {
+        & (Join-Path $outputFullPath 'Install-OrionAdminService.ps1') -ValidateOnly -Port $SmokePort -DataDirectory (Join-Path $smokeRoot 'service-data') | Out-Host
+        & (Join-Path $outputFullPath 'Uninstall-OrionAdminService.ps1') -ValidateOnly -Port $SmokePort | Out-Host
+        Write-Host 'SERVICE_SCRIPT_VALIDATION_PASS'
         $env:Avorion__DataDirectory = Join-Path $smokeRoot 'data'
         $process = Start-Process -FilePath (Join-Path $outputFullPath 'AvorionAdmin.Api.exe') -WorkingDirectory $outputFullPath -ArgumentList @('--urls', "http://127.0.0.1:$SmokePort") -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $logs 'api.out.log') -RedirectStandardError (Join-Path $logs 'api.err.log')
         $ready = $false
