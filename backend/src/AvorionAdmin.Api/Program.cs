@@ -9,6 +9,7 @@ using AvorionAdmin.Core.Models;
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
+builder.Services.AddWindowsService(options => options.ServiceName = "OrionAdmin");
 builder.Services.AddOrionAdminModules(builder.Configuration);
 
 var app = builder.Build();
