@@ -63,7 +63,7 @@ try {
     $wwwroot = Join-Path $staging 'wwwroot'
     New-Item -ItemType Directory -Path $wwwroot -Force | Out-Null
     Copy-Item -Path (Join-Path $frontendDist '*') -Destination $wwwroot -Recurse -Force
-    foreach ($file in @('Start-OrionAdmin.cmd', 'Open-OrionAdmin.ps1', 'Install-OrionAdminService.ps1', 'Uninstall-OrionAdminService.ps1', 'README.txt')) {
+    foreach ($file in @('Start-OrionAdmin.cmd', 'Open-OrionAdmin.ps1', 'Install-OrionAdminService.ps1', 'Uninstall-OrionAdminService.ps1', 'management-mod\\OrionAdminBridge\\modinfo.lua', 'README.txt')) {
         Copy-Item -LiteralPath (Join-Path $packageTemplate $file) -Destination (Join-Path $staging $file)
     }
 

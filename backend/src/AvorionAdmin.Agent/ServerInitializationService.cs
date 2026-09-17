@@ -57,7 +57,9 @@ public sealed class ServerInitializationService(
             initialization.StopCommandSent,
             configuredApplication.RconConfigured,
             health.RconAuthenticated,
-            ["process-running", "server-ini-created", "console-save-sent", "console-stop-confirmed", "rcon-authenticated"],
+            configuredApplication.ManagementBridge is not null
+                ? ["process-running", "server-ini-created", "console-save-sent", "console-stop-confirmed", "management-bridge-installed", "rcon-authenticated"]
+                : ["process-running", "server-ini-created", "console-save-sent", "console-stop-confirmed", "rcon-authenticated"],
             configuredApplication.DeferredActions.Where(action => action is not "first-galaxy-initialization" and not "rcon-until-first-initialization").ToArray(),
             health.StartedAt,
             DateTimeOffset.UtcNow);

@@ -78,6 +78,7 @@ export function SetupWizardView({
   onComplete: () => void;
 }) {
   const [galaxyPickerOpen, setGalaxyPickerOpen] = useState(false);
+  const [installManagementMod, setInstallManagementMod] = useState(false);
   const [setupBusy, setSetupBusy] = useState<"loading" | "saving" | "preflight" | "applying" | "initializing" | null>(null);
   const [setupError, setSetupError] = useState<string | null>(null);
   const [preflightResult, setPreflightResult] = useState<ServerSetupPreflightResult | null>(null);
@@ -112,7 +113,7 @@ export function SetupWizardView({
     rconEnabled,
     rconPort,
     allowFirewallChange,
-    installManagementMod: false,
+    installManagementMod,
   });
 
   useEffect(() => {
@@ -137,6 +138,7 @@ export function SetupWizardView({
       onRconEnabledChange(draft.rconEnabled);
       onRconPortChange(draft.rconPort);
       onAllowFirewallChange(draft.allowFirewallChange);
+      setInstallManagementMod(draft.installManagementMod);
     }).catch((caught) => {
       if (caught instanceof DOMException && caught.name === "AbortError") return;
       setSetupError(caught instanceof Error ? caught.message : "无法读取服务器配置草稿");
@@ -358,6 +360,7 @@ export function SetupWizardView({
     "building-launch-profile": "生成受控启动档案",
     "writing-launch-profile": "原子写入启动档案",
     "updating-server-ini": "原子更新 server.ini",
+    "installing-management-bridge": "原子安装并校验 OrionAdminBridge",
     "verifying-applied-configuration": "验证写入结果",
     completed: "配置应用完成",
   };
@@ -367,7 +370,8 @@ export function SetupWizardView({
     "first-galaxy-initialization": "首次启动并创建 Galaxy",
     "rcon-until-first-initialization": "首次初始化生成 server.ini 后再写入 RCON",
     "windows-firewall": "Windows 防火墙变更等待单独确认",
-    "management-mod": "历史兼容项已忽略；本系统不会安装或植入自定义 MOD",
+    "management-mod-until-first-initialization": "首次创建 Galaxy 并安全停服后安装 OrionAdminBridge",
+    "management-mod-enable": "已保留现有 modconfig.lua；需在其中启用 OrionAdminBridge",
   };
   const initializationStepLabels: Record<string, string> = {
     "reapplying-launch-profile": "重新验证并锁定受控启动档案",
@@ -380,6 +384,7 @@ export function SetupWizardView({
     "writing-rcon-after-safe-stop": "停服后原子写入 RCON 配置",
     "starting-configured-server": "按受控启动档案重新启动",
     "verifying-server-stability": "RCON 已连接，正在确认服务端持续稳定运行",
+    "management-bridge-installed": "OrionAdminBridge 已安装并完成文件校验",
     "rcon-authenticated": "RCON 认证成功，服务器运行中",
     completed: "首次初始化完成",
   };
@@ -526,6 +531,11 @@ export function SetupWizardView({
           </label>}
 
           <label className="setup-checkbox-row">
+            <input type="checkbox" checked={installManagementMod} onChange={(event) => setInstallManagementMod(event.target.checked)} />
+            <span><strong>安装并维护 OrionAdminBridge</strong><small>仅安装本软件随包组件；已有版本先移入 Galaxy 内备份目录，现有 modconfig.lua 不会被覆盖。</small></span>
+          </label>
+
+          <label className="setup-checkbox-row">
             <input type="checkbox" checked={allowFirewallChange} onChange={(event) => onAllowFirewallChange(event.target.checked)} />
             <span><strong>允许后续单独请求修改 Windows 防火墙</strong><small>勾选不代表立即修改；执行前仍会再次确认。</small></span>
           </label>
@@ -544,11 +554,11 @@ export function SetupWizardView({
             </section>
             <section>
               <header><strong>网络与 RCON</strong><button type="button" onClick={() => onStepChange(2)}>修改</button></header>
-              <dl><div><dt>监听地址</dt><dd>{listenAddress}</dd></div><div><dt>游戏 / Query</dt><dd>{gamePort} / {queryPort}</dd></div><div><dt>RCON</dt><dd>{reviewRconStatus}</dd></div><div><dt>防火墙</dt><dd>{allowFirewallChange ? "执行前另行确认" : "不修改"}</dd></div></dl>
+              <dl><div><dt>监听地址</dt><dd>{listenAddress}</dd></div><div><dt>游戏 / Query</dt><dd>{gamePort} / {queryPort}</dd></div><div><dt>RCON</dt><dd>{reviewRconStatus}</dd></div><div><dt>防火墙</dt><dd>{allowFirewallChange ? "执行前另行确认" : "不修改"}</dd></div><div><dt>管理组件</dt><dd>{installManagementMod ? "安装并校验随包 OrionAdminBridge" : "暂不安装"}</dd></div></dl>
             </section>
           </div>
 
-          {!preflightResult && !applicationOperation && <div className="setup-blocked-note"><ShieldCheck size={20} /><div><strong>先运行真实预检</strong><span>预检通过后才能安全应用配置；本操作不会启动服务端、修改防火墙，也不会安装或写入任何 MOD。</span></div></div>}
+          {!preflightResult && !applicationOperation && <div className="setup-blocked-note"><ShieldCheck size={20} /><div><strong>先运行真实预检</strong><span>预检通过后才能安全应用配置；本操作不会启动服务端或修改防火墙；仅在明确勾选时安装随包 OrionAdminBridge。</span></div></div>}
           {preflightResult?.valid && !applicationSucceeded && <div className="setup-basic-note"><CheckCircle2 size={20} /><span><strong>真实预检通过：</strong>更新环境、Galaxy 路径和 {preflightResult.ports.length} 个端口均已检查，现在可以安全应用已验证配置。</span></div>}
           {preflightResult && !preflightResult.valid && <div className="setup-blocked-note"><AlertCircle size={20} /><div><strong>预检未通过</strong><span>{preflightErrorSummary || "请修正检查结果后重试"}</span></div></div>}
           {preflightResult && <div className="setup-capability-list">
@@ -562,6 +572,7 @@ export function SetupWizardView({
           </div>}
           {applicationSucceeded && applicationOperation.result && <div className="setup-capability-list">
             <div><CheckCircle2 size={18} /><span><strong>{applicationOperation.result.mode === "server-ini-updated" ? "server.ini 已原子更新" : "受控启动档案已保存"}</strong><small>{applicationOperation.result.mode === "server-ini-updated" ? "已验证写入结果；RCON 仅绑定本机回环地址。" : "这是新 Galaxy；首次启动前不伪造尚不存在的 server.ini。"}</small></span></div>
+            {applicationOperation.result.managementBridge && <div><CheckCircle2 size={18} /><span><strong>OrionAdminBridge {applicationOperation.result.managementBridge.version} 已安装并校验</strong><small>{applicationOperation.result.managementBridge.configured ? "modconfig.lua 已启用；下次启动加载组件。" : "现有 modconfig.lua 已保留，需要手动启用组件。"}</small></span></div>}
             {applicationOperation.result.deferredActions.map((action) => <div key={action}><Info size={18} /><span><strong>后续处理</strong><small>{deferredActionLabels[action] ?? action}</small></span></div>)}
           </div>}
           {applicationSucceeded && applicationOperation.result?.mode === "launch-profile-ready" && <section className="setup-initialization-panel" aria-labelledby="initialization-title">

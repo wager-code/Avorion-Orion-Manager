@@ -66,7 +66,7 @@ public sealed partial class SqliteStore
             reader.GetInt64(8) == 1,
             reader.GetInt32(9),
             reader.GetInt64(10) == 1,
-            false,
+            reader.GetInt64(11) == 1,
             DateTimeOffset.Parse(reader.GetString(12), CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal));
     }
 
@@ -109,7 +109,7 @@ public sealed partial class SqliteStore
         command.Parameters.AddWithValue("$rcon_enabled", configuration.RconEnabled ? 1 : 0);
         command.Parameters.AddWithValue("$rcon_port", configuration.RconPort);
         command.Parameters.AddWithValue("$allow_firewall_change", configuration.AllowFirewallChange ? 1 : 0);
-        command.Parameters.AddWithValue("$install_management_mod", 0);
+        command.Parameters.AddWithValue("$install_management_mod", configuration.InstallManagementMod ? 1 : 0);
         command.Parameters.AddWithValue("$updated_at", configuration.UpdatedAt.UtcDateTime.ToString("O", CultureInfo.InvariantCulture));
         await command.ExecuteNonQueryAsync(cancellationToken);
     }

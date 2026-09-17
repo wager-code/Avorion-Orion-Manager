@@ -24,7 +24,8 @@ public sealed class ServerSetupApplicationService(
     IServerSetupPreflightService preflightService,
     IUpdateEnvironmentStore environmentStore,
     IUpdateEnvironmentService environmentService,
-    IOptions<ServerNodeOptions> options) : IServerSetupApplicationService
+    IOptions<ServerNodeOptions> options,
+    IManagementBridgeInstaller? managementBridgeInstaller = null) : IServerSetupApplicationService
 {
     private const int MaximumManagedProfileBytes = 512 * 1024;
     private const int MaximumServerIniBytes = 2 * 1024 * 1024;
@@ -83,7 +84,7 @@ public sealed class ServerSetupApplicationService(
             "127.0.0.1",
             request.RconPort,
             request.AllowFirewallChange,
-            false,
+            request.InstallManagementMod,
             DateTimeOffset.UtcNow);
         var profileBytes = JsonSerializer.SerializeToUtf8Bytes(profile, new JsonSerializerOptions(JsonSerializerDefaults.Web)
         {
@@ -112,10 +113,28 @@ public sealed class ServerSetupApplicationService(
                 ValidateServerIni(serverIniPath, request);
             }
 
+            ManagementBridgeInstallationResult? bridgeInstallation = null;
+            if (request.InstallManagementMod && Directory.Exists(galaxyDirectory))
+            {
+                if (managementBridgeInstaller is null)
+                    throw new ServerSetupApplicationException("MANAGEMENT_BRIDGE_PACKAGE_UNAVAILABLE", "当前运行包未包含 OrionAdminBridge 安装服务");
+                await reportProgressAsync(80, "installing-management-bridge", cancellationToken);
+                try
+                {
+                    bridgeInstallation = await managementBridgeInstaller.InstallAsync(galaxyDirectory, operationId, cancellationToken);
+                }
+                catch (ManagementBridgeInstallationException exception)
+                {
+                    throw new ServerSetupApplicationException(exception.Code, exception.Message, exception.Retryable, exception);
+                }
+            }
+
             await reportProgressAsync(90, "verifying-applied-configuration", cancellationToken);
             var deferred = new List<string> { "game-listen-address", "steam-query-port" };
             if (!iniExists) deferred.AddRange(["first-galaxy-initialization", "rcon-until-first-initialization"]);
             if (request.AllowFirewallChange) deferred.Add("windows-firewall");
+            if (request.InstallManagementMod && !Directory.Exists(galaxyDirectory)) deferred.Add("management-mod-until-first-initialization");
+            if (bridgeInstallation is not null && !bridgeInstallation.Configured) deferred.Add("management-mod-enable");
             var fingerprintInput = new byte[profileBytes.Length + (iniExists ? File.ReadAllBytes(serverIniPath).Length : 0)];
             Buffer.BlockCopy(profileBytes, 0, fingerprintInput, 0, profileBytes.Length);
             if (iniExists)
@@ -132,7 +151,8 @@ public sealed class ServerSetupApplicationService(
                 iniExists && request.RconEnabled,
                 Convert.ToHexString(SHA256.HashData(fingerprintInput)),
                 deferred,
-                DateTimeOffset.UtcNow);
+                DateTimeOffset.UtcNow,
+                bridgeInstallation);
         }
         catch (ServerSetupApplicationException)
         {

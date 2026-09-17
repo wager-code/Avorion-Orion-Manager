@@ -74,6 +74,16 @@ export type ServerSetupApplicationResult = {
   configurationSha256: string;
   deferredActions: string[];
   appliedAt: string;
+  managementBridge?: {
+    version: string;
+    targetDirectory: string;
+    manifestSha256: string;
+    backupDirectory: string | null;
+    configurationCreated: boolean;
+    configured: boolean;
+    restartRequired: boolean;
+    installedAt: string;
+  } | null;
 };
 
 export type ServerSetupApplicationOperation = {
@@ -216,3 +226,16 @@ export type InstallOperation = {
   request: { installDirectory?: string; plannedServerDirectory?: string; steamCmdPath?: string; appId?: number; branch?: string } | null;
 };
 
+
+export type ManagementBridgeStatus = {
+  packageAvailable: boolean;
+  packageVersion: string | null;
+  installed: boolean;
+  installedVersion: string | null;
+  current: boolean;
+  configured: boolean;
+  targetDirectory: string | null;
+  state: "galaxy-unconfigured" | "galaxy-invalid" | "missing" | "outdated-or-modified" | "installed-not-enabled" | "current";
+  issues: string[];
+  checkedAt: string;
+};

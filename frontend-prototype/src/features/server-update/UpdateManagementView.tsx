@@ -3,7 +3,7 @@ import { MessageSquareText, Power, Play, Activity, AlertCircle, ArrowLeft, Box, 
 import { useEffect, useRef, useState } from "react";
 import { apiFetch, createIdempotencyKey } from "../../lib/api";
 import { Button, Card, StatusPill } from "../../components/ui";
-import type { UpdateEnvironmentCurrent, UpdateCheckResult, UpdateVerificationResult, UpdateRollbackPointResult, UpdateRollbackPointAvailability, UpdateInspectionOperation } from "./types";
+import type { UpdateEnvironmentCurrent, UpdateCheckResult, UpdateVerificationResult, UpdateRollbackPointResult, UpdateRollbackPointAvailability, UpdateInspectionOperation, ManagementBridgeStatus } from "./types";
 import { readStoredOperationId, activeOperationStorageKeys, storeOperationId } from "./operationStorage";
 import { readApiError, formatDataSize } from "./utils";
 import { ManagementSummary, UpdateHeading } from "./UpdateSummaryComponents";
@@ -11,6 +11,8 @@ import { ManagementSummary, UpdateHeading } from "./UpdateSummaryComponents";
 export function UpdateManagementView({ onBack, onNotify }: { onBack: () => void; onNotify: (message: string) => void }) {
   const [environment, setEnvironment] = useState<UpdateEnvironmentCurrent | null>(null);
   const [serverStatus, setServerStatus] = useState<ServerStatus | null>(null);
+  const [bridgeStatus, setBridgeStatus] = useState<ManagementBridgeStatus | null>(null);
+  const [bridgeConnected, setBridgeConnected] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [checkOperationId, setCheckOperationId] = useState<string | null>(() => readStoredOperationId(activeOperationStorageKeys.updateCheck));
@@ -26,22 +28,28 @@ export function UpdateManagementView({ onBack, onNotify }: { onBack: () => void;
     let disposed = false;
     const load = async () => {
       try {
-        const [environmentResponse, statusResponse, rollbackResponse] = await Promise.all([
+        const [environmentResponse, statusResponse, rollbackResponse, bridgeResponse, bridgeHelloResponse] = await Promise.all([
           fetch("/api/v1/servers/local/update-environment", { headers: { Accept: "application/json" } }),
           fetch("/api/v1/servers/local/status", { headers: { Accept: "application/json" } }),
           fetch("/api/v1/servers/local/updates/rollback-points/latest", { headers: { Accept: "application/json" } }),
+          fetch("/api/v1/servers/local/management-bridge/status", { headers: { Accept: "application/json" } }),
+          fetch("/api/v1/servers/local/management-bridge/hello", { headers: { Accept: "application/json" } }),
         ]);
         if (!environmentResponse.ok) throw new Error(await readApiError(environmentResponse));
         if (!statusResponse.ok) throw new Error(await readApiError(statusResponse));
         if (!rollbackResponse.ok) throw new Error(await readApiError(rollbackResponse));
-        const [nextEnvironment, nextStatus, rollbackAvailability] = await Promise.all([
+        if (!bridgeResponse.ok) throw new Error(await readApiError(bridgeResponse));
+        const [nextEnvironment, nextStatus, rollbackAvailability, nextBridgeStatus] = await Promise.all([
           environmentResponse.json() as Promise<UpdateEnvironmentCurrent>,
           statusResponse.json() as Promise<ServerStatus>,
           rollbackResponse.json() as Promise<UpdateRollbackPointAvailability>,
+          bridgeResponse.json() as Promise<ManagementBridgeStatus>,
         ]);
         if (!disposed) {
           setEnvironment(nextEnvironment);
           setServerStatus(nextStatus);
+          setBridgeStatus(nextBridgeStatus);
+          setBridgeConnected(bridgeHelloResponse.ok);
           setLatestRollbackPoint(rollbackAvailability.available ? rollbackAvailability.point : null);
           setLoadError(null);
         }
@@ -180,6 +188,7 @@ export function UpdateManagementView({ onBack, onNotify }: { onBack: () => void;
     { icon: Search, title: "官方版本查询", detail: checkResult ? `App 565060 · public · Build ${checkResult.latestBuildId}` : "尚未向 Steam 官方查询", status: checkResult ? "已完成" : checkOperation?.status === "failed" ? "失败" : "待检查", tone: checkResult ? "success" : checkOperation?.status === "failed" ? "error" : "pending" },
     { icon: ShieldCheck, title: "本地文件只读验证", detail: verificationResult ? `已计算 ${verificationResult.files.length} 个必需文件的 SHA-256` : "不会修复、覆盖或下载文件", status: verificationResult ? "已通过" : verificationOperation?.status === "failed" ? "失败" : "待验证", tone: verificationResult ? "success" : verificationOperation?.status === "failed" ? "error" : "pending" },
     { icon: Database, title: "更新前安全点", detail: latestRollbackPoint ? `服务端 + Galaxy · ${formatDataSize(latestRollbackPoint.totalBytes)} · ${new Date(latestRollbackPoint.verifiedAt).toLocaleString("zh-CN")}` : "独立于 Avorion 自动存档备份，尚未创建", status: latestRollbackPoint ? "已验证" : rollbackOperation?.status === "failed" ? "失败" : "待创建", tone: latestRollbackPoint ? "success" : rollbackOperation?.status === "failed" ? "error" : "pending" },
+    { icon: Settings, title: "OrionAdminBridge", detail: bridgeConnected ? `已连接 · 版本 ${bridgeStatus?.installedVersion ?? "未知"}` : bridgeStatus?.current && bridgeStatus.configured ? `已安装 ${bridgeStatus.installedVersion ?? ""} · 启动服务器后验证连接` : bridgeStatus?.installed ? `已安装 ${bridgeStatus.installedVersion ?? "未知"} · 需要维护或启用` : bridgeStatus?.packageAvailable ? `随包版本 ${bridgeStatus.packageVersion} · 可在配置向导安装` : "随包组件不可用", status: bridgeConnected ? "已连接" : bridgeStatus?.current && bridgeStatus.configured ? "待连接" : bridgeStatus?.installed ? "需维护" : "未安装", tone: bridgeConnected ? "success" : bridgeStatus?.current && bridgeStatus.configured ? "pending" : "error" },
     { icon: MessageSquareText, title: "完整更新执行", detail: checkResult?.updateAvailable === false ? "本机 Build 与 Steam 官方 public Build 一致，无需停服" : "发现新 Build 时仍需先完成安全点与停服验证", status: checkResult?.updateAvailable === false ? "无需更新" : "安全锁定", tone: checkResult?.updateAvailable === false ? "success" : "locked" },
   ];
 
@@ -253,6 +262,7 @@ export function UpdateManagementView({ onBack, onNotify }: { onBack: () => void;
             {rollbackRunning ? "正在创建并校验安全点" : latestRollbackPoint ? "重新创建更新前安全点" : "创建更新前安全点"}
           </Button>
           <p className="update-action-card__boundary">复制服务端程序和 Galaxy，只创建安全点；不会恢复文件，也不会开始更新。</p>
+          <Button className="update-action-card__button" variant="ghost" size="lg" onClick={onBack}><Settings size={18} />返回配置页安装或升级管理组件</Button>
           {failedOperation && <div className="update-operation-error" role="alert"><strong>{failedOperation.error?.message ?? "操作失败"}</strong><span>错误码：{failedOperation.error?.code ?? "UNKNOWN"}</span>{failedOperation.error?.details?.stage && <span>失败阶段：{failedOperation.error.details.stage}</span>}{failedOperation.error?.details?.systemError && <details><summary>查看系统返回原因</summary><pre>{failedOperation.error.details.systemError}</pre></details>}{failedOperation.error?.details?.logExcerpt && <details><summary>查看 SteamCMD 返回日志</summary><pre>{failedOperation.error.details.logExcerpt}</pre></details>}</div>}
         </Card>
       </div>

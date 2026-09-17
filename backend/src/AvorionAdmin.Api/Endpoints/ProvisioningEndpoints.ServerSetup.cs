@@ -47,7 +47,7 @@ public static partial class ProvisioningEndpoints
         	{
         		return ApiErrors.Create(context, 400, "DRAFT_LIMIT_EXCEEDED", "配置草稿字段超出允许范围");
         	}
-        	ServerSetupDraftConfiguration configuration = new ServerSetupDraftConfiguration(request.ServerName, request.GalaxyName, request.GalaxyMode, request.MaxPlayers, request.GalaxyDirectory, request.ListenAddress, request.GamePort, request.QueryPort, request.RconEnabled, request.RconPort, request.AllowFirewallChange, InstallManagementMod: false, DateTimeOffset.UtcNow);
+        	ServerSetupDraftConfiguration configuration = new ServerSetupDraftConfiguration(request.ServerName, request.GalaxyName, request.GalaxyMode, request.MaxPlayers, request.GalaxyDirectory, request.ListenAddress, request.GamePort, request.QueryPort, request.RconEnabled, request.RconPort, request.AllowFirewallChange, InstallManagementMod: request.InstallManagementMod, DateTimeOffset.UtcNow);
         	await store.SaveAsync(configuration, cancellationToken);
         	return Results.Ok(configuration);
         });
@@ -71,10 +71,6 @@ public static partial class ProvisioningEndpoints
         	{
         		return ApiErrors.Create(context, 400, "PREFLIGHT_LIMIT_EXCEEDED", "配置预检字段超出允许范围");
         	}
-        	request = request with
-        	{
-        		InstallManagementMod = false
-        	};
         	return Results.Ok(await service.ValidateAsync(request, cancellationToken));
         });
         app.MapPost("/api/v1/servers/{serverId}/server-setup/applications", (Func<string, ServerSetupPreflightRequest, HttpContext, IServerSetupPreflightService, IOperationStore, ServerSetupApplicationQueue, VerifiedCommandRegistry, ServerNodeOptionsAccessor, CancellationToken, Task<IResult>>)async delegate(string serverId, ServerSetupPreflightRequest request, HttpContext context, IServerSetupPreflightService preflightService, IOperationStore store, ServerSetupApplicationQueue queue, VerifiedCommandRegistry commands, ServerNodeOptionsAccessor node, CancellationToken cancellationToken)
@@ -107,10 +103,6 @@ public static partial class ProvisioningEndpoints
         	{
         		return ApiErrors.Create(context, 400, "IDEMPOTENCY_KEY_REQUIRED", "应用服务器配置需要 8–128 字符的 Idempotency-Key");
         	}
-        	request = request with
-        	{
-        		InstallManagementMod = false
-        	};
         	ServerSetupPreflightResult preflight = await preflightService.ValidateAsync(request, cancellationToken);
         	if (!preflight.Valid)
         	{
@@ -194,10 +186,6 @@ public static partial class ProvisioningEndpoints
         	{
         		return ApiErrors.Create(context, 400, "IDEMPOTENCY_KEY_REQUIRED", "首次初始化需要 8–128 字符的 Idempotency-Key");
         	}
-        	request = request with
-        	{
-        		InstallManagementMod = false
-        	};
         	ServerSetupPreflightResult preflight = await preflightService.ValidateAsync(request, cancellationToken);
         	if (!preflight.Valid)
         	{

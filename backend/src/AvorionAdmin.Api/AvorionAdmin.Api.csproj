@@ -7,6 +7,12 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\..\management-mod\OrionAdminBridge\**\*"
+             Link="management-mod\OrionAdminBridge\%(RecursiveDir)%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\AvorionAdmin.Core\AvorionAdmin.Core.csproj" />
     <ProjectReference Include="..\AvorionAdmin.Agent\AvorionAdmin.Agent.csproj" />
   </ItemGroup>

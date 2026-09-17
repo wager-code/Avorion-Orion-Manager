@@ -296,7 +296,7 @@ try
     await serverSetupDraftStore.SaveAsync(setupDraft);
     var savedSetupDraft = await serverSetupDraftStore.GetAsync();
     Check(savedSetupDraft?.ServerName == "测试服务器" && savedSetupDraft.GalaxyDirectory == setupDraft.GalaxyDirectory, "non-secret server setup draft should persist in SQLite");
-    Check(savedSetupDraft?.InstallManagementMod == false, "deprecated management MOD intent must be normalized to false in storage");
+    Check(savedSetupDraft?.InstallManagementMod == true, "explicit OrionAdminBridge installation intent should persist without storing secrets");
 
     var gamePort = ReserveFreeUdpPort();
     var queryPort = ReserveFreeUdpPort(gamePort);
@@ -307,7 +307,7 @@ try
         "0.0.0.0", gamePort, queryPort, true, rconTestPort, "safe-password-123", false, true));
     Check(validPreflight.Valid && validPreflight.UpdateEnvironmentValid && validPreflight.GalaxyPathValid, "server setup preflight should validate the real saved environment and writable Galaxy ancestor");
     Check(validPreflight.Ports.Count == 3 && validPreflight.Ports.All(port => port.Available), "server setup preflight should read the real host listener tables for all configured protocols");
-    Check(validPreflight.Issues.All(issue => issue.Code != "MANAGEMENT_MOD_DEFERRED"), "deprecated management MOD intent must not enter the setup plan");
+    Check(validPreflight.Issues.All(issue => issue.Severity != "error"), "OrionAdminBridge installation intent should not invalidate setup preflight");
 
     using (var occupiedListener = new TcpListener(IPAddress.Loopback, 0))
     {
@@ -375,6 +375,19 @@ try
         "ambiguous server.ini must be rejected without modifying the original file");
     Check((await File.ReadAllBytesAsync(existingApplication.LaunchProfilePath)).SequenceEqual(stableProfile),
         "a failed server.ini application must roll the managed launch profile back to its prior bytes");
+
+    var bridgePackage = Directory.CreateDirectory(Path.Combine(root, "bridge-package")).FullName;
+    Directory.CreateDirectory(Path.Combine(bridgePackage, "data", "scripts", "commands"));
+    await File.WriteAllTextAsync(Path.Combine(bridgePackage, "modinfo.lua"), "meta = { version = \"0.10.0\" }");
+    await File.WriteAllTextAsync(Path.Combine(bridgePackage, "data", "scripts", "commands", "orionadmin.lua"), "return true");
+    IManagementBridgeInstaller bridgeInstaller = new ManagementBridgeInstaller(bridgePackage);
+    var bridgeInstallation = await bridgeInstaller.InstallAsync(galaxy, "op_bridge_install");
+    var bridgeStatus = await bridgeInstaller.InspectAsync(galaxy);
+    Check(bridgeInstallation.Version == "0.10.0" && bridgeInstallation.Configured && bridgeStatus.Current,
+        "management bridge installer should atomically publish the packaged component and create config only when absent");
+    Check(File.Exists(Path.Combine(galaxy, "mods", "OrionAdminBridge", "modinfo.lua")) &&
+          File.ReadAllText(Path.Combine(galaxy, "modconfig.lua")).Contains("OrionAdminBridge", StringComparison.Ordinal),
+        "management bridge installation should expose verified files without overwriting an existing config");
 
     var serverSnapshotBefore = await File.ReadAllBytesAsync(serverExecutable);
     var galaxySnapshotBefore = await File.ReadAllBytesAsync(Path.Combine(galaxy, "save-state.dat"));
